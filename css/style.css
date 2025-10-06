@@ -1,0 +1,351 @@
+/* ===== Variables & Base ===== */
+:root {
+  --bg: #ffffff;
+  --text: #0f172a; /* slate-900 */
+  --muted: #475569; /* slate-600 */
+  --border: #e2e8f0; /* slate-200 */
+  --accent: #0ea5e9; /* sky-500 */
+  --accent-weak: #e0f2fe; /* sky-100 */
+  --sidebar-bg: #f1f5f9; /* light gray for empty sidebar */
+}
+
+html, body { height: 100%; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ===== App Layout ===== */
+.app {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+  grid-template-areas:
+    "header header"
+    "sidebar main";
+}
+
+header {
+  grid-area: header;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* left brand / centered title / right spacer */
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.brand { font-weight: 800; letter-spacing: .3px; }
+.brand a { color: inherit; text-decoration: none; }
+
+
+
+/* Global navbar under header */
+.navbar {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.navbar a {
+  text-decoration: none;
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+}
+.navbar a:hover {
+  background: var(--accent-weak);
+  border-color: var(--accent);
+}
+
+nav.sidebar {
+  grid-area: sidebar;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+}
+
+main {
+  grid-area: main;
+  padding: 28px clamp(16px, 4vw, 48px) 64px;
+  max-width: 1000px;
+}
+
+.kicker { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.muted { color: var(--muted); }
+
+.card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* ===== Two-column homepage panel ===== */
+.panel {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.profile {
+  position: sticky;
+  top: 92px;
+}
+.profile .photo {
+  width: 180px; height: 180px; border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #f1f5f9, #e2e8f0);
+  display: flex; align-items: center; justify-content: center;
+}
+.profile .photo img { width: 100%; height: 100%; object-fit: cover; display:block; }
+.profile h1 { margin: 12px 0 4px; font-size: clamp(22px, 3vw, 28px); }
+.profile .title { color: var(--muted); margin-bottom: 12px; }
+.profile ul { list-style: none; padding: 0; margin: 0; }
+.profile li { margin: 6px 0; }
+.profile a { color: var(--accent); text-decoration: none; }
+.profile a:hover { text-decoration: underline; }
+
+/* ===== Card grid (for Notes & Puzzles landings) ===== */
+.grid { display: grid; gap: 20px; }
+
+.card-link { text-decoration: none; color: inherit; }
+.card-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr; /* left third image, right two-thirds text */
+  gap: 20px;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+.card-row:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  border-color: var(--accent);
+}
+.card-row h2 { margin: 0 0 8px; font-size: clamp(18px, 2vw, 22px); }
+.card-row p { margin: 0; }
+
+/* Thumb rules from your snippet */
+.page-title .title-link {
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+  display: inline-block;
+  transition: transform 180ms ease;
+}
+.page-title .title-link::before,
+.page-title .title-link::after {
+  content: "";
+  position: absolute;
+  height: 2px;
+  bottom: -6px;
+  background: currentColor;
+  left: 50%;
+  right: 50%;
+  transition: left 220ms ease, right 220ms ease;
+}
+.page-title .title-link:hover::before,
+.page-title .title-link:hover::after,
+.page-title .title-link:focus::before,
+.page-title .title-link:focus::after {
+  left: 0; right: 0;
+}
+.page-title .title-link:hover,
+.page-title .title-link:focus { transform: scale(1.05); }
+
+.thumb {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 220px;
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 960px) {
+  .app { grid-template-columns: 1fr; grid-template-areas: "header" "main"; }
+  nav.sidebar { display: none; }
+  .panel { grid-template-columns: 1fr; }
+  .profile { position: static; }
+  .card-row { grid-template-columns: 1fr; align-items: start; }
+}
+
+.sidebar .profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center photo + text horizontally */
+  padding: 24px 16px;    /* add breathing room inside sidebar */
+  text-align: center;    /* center text under the photo */
+}
+
+.sidebar .profile .photo {
+  margin-bottom: 12px;   /* spacing under photo */
+}
+
+.profile a,
+.card a {
+  color: var(--accent);          /* accent color by default */
+  text-decoration: none;         /* no default underline */
+  border-bottom: 1px solid transparent;
+  font-weight: 500;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.profile a:hover,
+.card a:hover {
+  border-color: var(--accent);   /* underline appears on hover */
+}
+
+.profile-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.profile-links li {
+  display: flex;
+  align-items: center;
+  margin: 6px 0;
+  font-size: 0.95rem;
+}
+
+.profile-links i {
+  margin-right: 8px;
+  color: var(--muted); /* keeps icon subtle */
+  min-width: 16px;     /* aligns text nicely */
+}
+
+/* Problem card tweaks */
+.problem-card .problem-title {
+  margin: 0 0 8px;
+  font-size: 20px;             /* smaller than h1 */
+  font-weight: 700;
+}
+
+alphabetic subparts
+.parts {
+  list-style: lower-alpha;
+  padding-left: 1.25rem;       /* readable indent */
+  margin: 12px 0 16px;
+}
+
+/* thin divider that doesn't touch edges */
+.divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 14px 0 14px;
+  width: 94%;                  /* a bit inset from card edges */
+}
+
+/* (If you don't already have these from before) */
+.toggle-solution {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.toggle-solution:hover {
+  background: var(--accent-weak);
+  border-color: var(--accent);
+}
+
+.solution[hidden] { display: none; }
+
+
+/* (a), (b), (c) ... */
+ol.parts {
+  list-style: none;             /* hide browser numbering */
+  counter-reset: parts;
+  margin: 12px 0 16px;
+  padding-left: 0;              /* we’ll pad li’s instead */
+}
+ol.parts > li {
+  counter-increment: parts;
+  position: relative;
+  padding-left: 1.6rem;         /* space for the marker */
+  margin: 6px 0;
+}
+ol.parts > li::before {
+  content: "(" counter(parts, lower-alpha) ") ";
+  position: absolute;
+  left: 0;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* (i), (ii), (iii) ... for the nested list */
+ol.roman {
+  list-style: none;             /* hide browser numbering */
+  counter-reset: roman;
+  margin: 8px 0 4px 0;          /* no extra left indent from the browser */
+  padding-left: 0;              /* we’ll pad li’s instead */
+}
+ol.roman > li {
+  counter-increment: roman;
+  position: relative;
+  padding-left: 1.6rem;         /* space for the marker */
+  margin: 4px 0;
+}
+ol.roman > li::before {
+  content: "(" counter(roman, lower-roman) ") ";
+  position: absolute;
+  left: 0;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.tex sub, .latex sub, .latex sup {
+    text-transform: uppercase;
+}
+
+.tex sub, .latex sub {
+  vertical-align: -0.5ex;
+  margin-left: -0.1667em;
+  margin-right: -0.125em;
+}
+
+.tex, .latex, .tex sub, .latex sub {
+  font-size: 1em;
+}
+
+.latex sup {
+  font-size: 0.85em;
+  vertical-align: 0.15em;
+  margin-left: -0.36em;
+  margin-right: -0.15em;
+}
