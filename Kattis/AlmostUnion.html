@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+    
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Almost Union Find</span>
+    </header>
+
+    <h1>Almost Union Find</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+        There are three operations you can do with this almost union-find data structure:
+      </p>
+
+      <ul>
+        <li>$1\;p\;q$: Union sets containing $p$ and $q$. Ignore if they are in the same set.</li>
+        <li>$2\;p\;q$: Move $p$ to set containing $q$. Ignore if they are in the same set.</li>
+        <li>$3\;p$: Return number of elements and sum of elements in set containing $p$.</li>
+      </ul>
+
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>Integers $n$ and $m$, for number of integers and number of commands respectively.</li>
+        <li>$m$ lines with one operation per line.</li>
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>For each type-$3$ command, output 2 integers: number of elements and sum of elements.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+import sys
+
+def main():
+    for line in sys.stdin:
+        if not line.strip():
+            continue
+        n, m = map(int, line.split())
+
+        max_nodes = n + m + 5  
+        parent = list(range(max_nodes))
+        cnt = [0] * max_nodes  
+        tot = [0] * max_nodes 
+        id = [0] * (n + 1)   
+        next_node = n + 1
+
+        for i in range(1, n + 1):
+            id[i] = i
+            parent[i] = i
+            cnt[i] = 1
+            tot[i] = i
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        out = []
+        for _ in range(m):
+            parts = sys.stdin.readline().split()
+            if not parts:
+                continue
+            t = int(parts[0])
+
+            if t == 1:
+                p, q = map(int, parts[1:3])
+                rp, rq = find(id[p]), find(id[q])
+                if rp != rq:
+                    parent[rp] = rq
+                    cnt[rq] += cnt[rp]
+                    tot[rq] += tot[rp]
+
+            elif t == 2:
+                p, q = map(int, parts[1:3])
+                rp, rq = find(id[p]), find(id[q])
+                if rp != rq:
+                    cnt[rp] -= 1
+                    tot[rp] -= p
+                    id[p] = next_node
+                    parent[id[p]] = rq
+                    cnt[rq] += 1
+                    tot[rq] += p
+                    next_node += 1
+
+            else: 
+                p = int(parts[1])
+                r = find(id[p])
+                out.append(f"{cnt[r]} {tot[r]}")
+
+        sys.stdout.write("\n".join(out) + "\n")
+
+if __name__ == "__main__":
+    main()
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+      <p>Under construction.
+      </p>
+    </section>
+  </div>
+</body>

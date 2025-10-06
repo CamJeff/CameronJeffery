@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+    
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Moscow Dream</span>
+    </header>
+
+    <h1>Moscow Dream</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+       You are given an input for four numbers. The first is the number of easy problems to be on a test, the second is the number of medium problems, and the third is the number of hard problems. The last number is the number of questions on the test. If you can have at least 1 question of each difficulty on the test, print YES. If not, print NO.
+      </p>
+
+     
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>Four numbers. The first three are the number of easy, medium, and hard problem respectively. The fourth is the number of questions on the test.</li>
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>Whether its possible to have a test with at least question of each difficulty. YES if it is possible, or NO if not.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+def main():
+    easy, medium, hard, n = map(int, input().split())
+    ok = (easy > 0 and medium > 0 and hard > 0 and n >= 3 and n <= easy + medium + hard)
+    print("YES" if ok else "NO")
+
+if __name__ == "__main__":
+    main()
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+        <p>Save the number of easy, medium, hard problems and the number of test problems into four variables.
+            We print YES if there are a non-zero amount of easy, medium, hard problems, and that the number of
+            test problems is greater than 3, and is also less than or equal to the sum of easy, medium, hard problems 
+            (otherwise there would be questions on the test we couldn't fill).
+        </p>
+    </section>
+  </div>
+</body>

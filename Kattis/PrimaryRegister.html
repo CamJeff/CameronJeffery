@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+    
+<body>
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Primary Register</span>
+    </header>
+
+    <h1>Primary Register</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+        Given 8 numbers that are all written in modulo of the corresponding first 8 prime numbers.
+        We increment the first number mod 2 by $1$. If it "overflows", we set it to 0, and increment 
+        the second number mod 3 by $1$. If that overflows, we set it to zero, and continue incrementing 
+        the third number mod 5. If the eighth number (mod 19) overflows, the computer blows up. Given a 
+        state of these 8 numbers, we want to determine how many times we can increment before the computer blows up.
+      </p>
+
+     
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>8 numbers, $v_2,v_3,v_5,\dots,v_{19}$ that are each written modulo of the first 8 prime numbers.</li>
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>The maximum number of increments before the computer blows up.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+def main():
+    radices = [2, 3, 5, 7, 11, 13, 17, 19]
+    v = list(map(int, input().split())) 
+
+    value = 0     
+    place = 1   
+    for digit, base in zip(v, radices):
+        value += digit * place
+        place *= base      
+
+    print(place - 1 - value)
+
+if __name__ == "__main__":
+    main()
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+        <p>The maximum number of increments we can do before blowing up: $2\times 3\times 5\times 7\times \cdots \times 19-1$.
+            We save this in variable <code>place</code>, which is the maximum number of increments that we can get 
+            for each 'base' of modulo. For instance, if we have just two numbers $v_2$ and $v_3$, the maximum number of increments 
+            would be $1\times 2\times 3=6$ (we start with <code>place=1</code>). 
+        </p>
+
+        <p>The variable <code>value</code> represents the total number of increments that are 
+        happening, counting as they spill over on the other numbers. Here, 
+    it will always be equal to $v_x\times$<code>place</code> for the previous modulo base. For instance,
+    if $v_5=4$, then <code>value=</code>$4\times (1\times 2\times 3)=24$. Of course, this is assuming that 
+    $v_5$ is the last number to spill over to. Thus, the number of increments possible before blowing up would be
+    $(1\times 2\times 3\times 5)-24=6$, assuming $v_2=v_3=0$. If $v_2$ or $v_3$ were not $0$, then 
+    we would have to compute <code>value</code> for them, and add them to $24$, then subtract this from $30$.
+    </p>
+
+    <p>This basic concpet is extended for all eight numbers.</p>
+    </section>
+  </div>
+</body>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Exact Change 2</span>
+    </header>
+
+    <h1>Exact Change 2</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+        You are given a price of an object, the number bills/coins you have, and their 
+        denominations (all in cents). Nothing will exceed 10,000 cents (i.e $100). You want to 
+        print out both the amount of money you spent on the object, and the number of coins/bills 
+        you used to pay. 
+      </p>
+
+     
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>An integer indicating the number of test cases.</li>
+        <li>The price of the item.</li>
+        <li>And integer $n$ representing the number of coins/bills you have.</li>
+        <li>The next $n$ lines are the denominations of the coins/bills.</li>
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>The total amount paid and the number of coins/bills used.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+def main():
+    T = int(input())
+    for _ in range(T):
+        P = int(input())  # price           
+        n = int(input())  # number of coins/bills                 
+        coins = [int(input()) for _ in range(n)] # denominations
+
+        MAX = P + 10000
+        INF = 10**9
+
+        dp = [INF] * (MAX + 1)      
+        dp[0] = 0
+
+        for v in coins:      
+            for s in range(MAX - v, -1, -1): 
+                if dp[s] + 1 < dp[s + v]:
+                    dp[s + v] = dp[s] + 1
+
+        for pay in range(P, MAX + 1):
+            if dp[pay] < INF:
+                print(pay, dp[pay])
+                break
+
+if __name__ == "__main__":
+    main()
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+      <p>Store the number of test cases in variable <code>T</code>. For each 
+        test case, store the price and number of coins/bills in varaibles <code>P</code> and 
+        <code>n</code>, and the denominaions into an array called <code>coins</code>.
+      </p>
+
+      <p>Create a <code>dp</code> array with lots of entries initially 
+    with arbitrarily large numbers. Each <code>dp[s]</code> will hold 
+the minimum number of items needed to form exactly a summed price of <code>s</code>. Set 
+<code>dp[0]=0</code>. </p>
+
+<p>For each coin denomination $v$, iterate backwards, and for each sum 
+    <code>s</code>, if we can make <code>s</code> with <code>dp[s]</code> coins, 
+    then we can make <code>s+v</code> using one more coin. Update <code>dp[s+v]</code>
+    if we find a better (smaller) number of coins. 
+</p>
+
+<p>After processing all coins, scan the price all the way to max. The first reachable sum
+    where <code>dp[pay] != INF</code>, is the minimum total amount we can pay. So print pay 
+    and the number of coins we use, as in the dp array.
+</p>
+    </section>
+  </div>
+</body>

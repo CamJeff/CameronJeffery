@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+    
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Pivot</span>
+    </header>
+
+    <h1>Pivot</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+        Given an array, print out the number of pivots we could use for quicksort. A pivot means 
+        all elements to the left of it are smaller, and all elements to the right of it are larger.
+      </p>
+
+     
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>A number $n$ indicating the number of elements in the list.</li>
+        <li>A list of $n$ numbers separated by spaces</li>
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>The number of pivots that can be used.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+def main():
+    n = int(input())
+    a = list(map(int, input().split()))
+    INF = 10**19
+
+    left_max = [None]*n
+    m = -INF
+    for i in range(n):
+        left_max[i] = m
+        if a[i] > m: m = a[i]
+
+    right_min = [None]*n
+    m = INF
+    for i in range(n-1, -1, -1):
+        right_min[i] = m
+        if a[i] < m: m = a[i]
+
+    print(sum(1 for i in range(n) if left_max[i] < a[i] < right_min[i]))
+
+if __name__ == "__main__":
+    main()
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+        <p>Get $n$, the number of elements, and save the numbers in a list/array called <code>a</code>. Set 
+        an arbitrarily large number to be used to compare min/max.</p>
+
+        <p>Create a left max array. For every number in our array, move leftwards until you find the maximum number.
+            Save this maximum in variable <code>m</code> and the max array.
+        </p>
+
+        <p>Similarly with the right side, you move backwards until you encounter the smallest 
+            element. Save these in the right min array.
+        </p>
+
+        <p>Iterating through all numbers, print the number of elements where the left maximum 
+            at smaller than itself, and the right minimum is larger than itself. Increment by $1$
+            each time this happens.
+        </p>
+    </section>
+  </div>
+</body>

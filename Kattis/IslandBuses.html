@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+    
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Island Buses</span>
+    </header>
+
+    <h1>Island Buses</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+        You are given a list of maps separated by a blank line. Water is denoted by a '.', 
+        island land is denoted by '#', and bridges are denoted by 'B', with the endpoints of the 
+        bridges connecting each island denoted by 'X'. For each map, print out the map number, 
+        the number of islands, number of bridges, and number of buses needed. Every island must have access to a bus, but 
+         will only use one bus for any group of two or more islands that is connected by bridges. So essentially 
+         the number of buses is equal to the number of connected components on the map
+      </p>
+
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>A list of island maps</li>
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>Print map number, number of islands, number of bridges, number of buses.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+import sys; input = sys.stdin.readline
+K = ((0, -1), (0, 1), (-1, 0), (1, 0)); T = 0
+while True:
+    M = [input().strip()]
+    if not M[0]: break
+    while True:
+        M.append(input().strip())
+        if not M[-1]: M.pop(); break
+    R, C = len(M), len(M[0]); V = [[0]*C for _ in range(R)]; I = B = N = 0; T += 1
+    for i in range(R):
+        for j in range(C):
+            if V[i][j]&1 == 0 and M[i][j] in '#X':
+                s = [(i, j)]; I += 1
+                while s:
+                    r, c = s.pop()
+                    if V[r][c]&1: continue
+                    V[r][c] |= 1
+                    for dr, dc in K:
+                        if R>r+dr>-1 < c+dc < C and M[r+dr][c+dc] in '#X': s.append((r+dr, c+dc))
+            if V[i][j]&2 == 0 and M[i][j] == 'B':
+                s = [(i, j)]; B += 1
+                while s:
+                    r, c = s.pop()
+                    if V[r][c]&2: continue
+                    V[r][c] |= 2
+                    for dr, dc in K:
+                        if R>r+dr>-1< c+dc < C and M[r+dr][c+dc] == 'B': s.append((r+dr, c+dc))
+            if V[i][j]&4 == 0 and M[i][j] != '.':
+                s = [(i, j)]; N += 1
+                while s:
+                    r, c = s.pop()
+                    if V[r][c]&4: continue
+                    V[r][c] |= 4
+                    for dr, dc in K:
+                        if R>r+dr>-1 < c+dc < C and M[r+dr][c+dc] != '.':
+                            if M[r][c] == 'B' and M[r+dr][c+dc] not in 'BX': continue
+                            if M[r][c] == '#' and M[r+dr][c+dc] in 'B': continue
+                            s.append((r+dr, c+dc))
+    print('Map', T); print('islands:', I); print('bridges:', B); print('buses needed:', N); print()
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+      <p>To count the islands, you count the connected components of land cells (# and X) using 
+        4-directional adjacency. For bridges, count the connected components of "B" cells. For bus count,
+        count the connected components of land + bridges, with bridges being connected by 'X' endpoints.
+        You can only move from B to B, or B to X, but not B to #. Similarly, you can only move # to #, 
+        or # to X, but not # to B. Each such component counts for one bus. 
+      </p>
+
+      <p><code>K</code> defines the 4-neighbour directions (up/down/left/right), and <code>T</code>
+    is the map counter (starting at 0). Read the first line of map and save it in <code>M</code>. 
+Keep reading lines into <code>M</code> until you hit a blank line. When a blank line is read, pop it/remove it 
+and stop. </p>
+
+<p>Save the number of rows and columns in the map into variables <code>R</code> and <code>C</code>.
+<code>V</code> is visted grid that has 1 for visited island, 2 for visited bridge, and 4 for visited bus group. 
+Initialize counters <code>I</code> for island, <code>B</code> for bridges, and <code>N</code> for bus groups to 0.</p>
+
+<p>Iterate through rows/columns, if cell is land and has not been visited, start a stack <code>s</code> with the land coordinate,
+and increment island by one. Pop coordinate from stack, if it has been visited, continue, but if not, mark it as bit 1 (for island) 
+and save in array <code>V</code>.
+</p>
+
+<p>Then iterating through our direction <code>K</code>, search the space of this coordinate (ensuring you 
+don't go off the grid), and if this coordinate is 'X' or '#', push it onto the stack. </p>
+
+<p>If the cell is a bridge (bit 2) and not visited, start another stack, and push this coordinate in it, and increment 
+    the bridge count by 1. Same as above, pop the coordinate, if it is a bridge (bit 2), continue, but if not, 
+    save it visted array <code>V</code>. Again, search the space by iterating through directions <code>K</code>
+    and push onto stack. 
+</p>
+
+<p>We do the same thing for bus counts, but now since we're counting cells #, B, and X, we make sure the coordinate 
+    is not water '.'. 
+</p>
+
+<p>We must ensure that if your cell is currently a bridge 'B', you may only move to another 
+    bridge cell or an endpoint 'X'. If your cell is currently a land cell, '#', you move not move 
+    to a bridge cell 'B'. 
+</p>
+
+<p>Finally, print the counted variables.</p>
+    </section>
+  </div>
+</body>

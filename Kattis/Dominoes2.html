@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Dominoes 2</span>
+    </header>
+
+    <h1>Dominoes 2</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+        Given a set of dominoes that are knocked down by hand, determine the total number of dominoes that fall.
+      </p>
+
+     
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>One number, specifying the number of test cases that follow.</li>
+        <li>Three integers $n,m,\ell$, where $n$ is the number of dominoes, numbered 1 to 
+            $n$.
+        </li>
+        <li>$m$ lines that contain two integers $x$ and $y$, where if 
+            domino $x$ falls, it will cause domino $y$ to fall as well.
+        </li>
+        <li>$\ell$ lines that contain a single integer $z$ indicating the 
+            domino numbered $z$ is knocked over by hand.
+        </li>
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>The total number of dominoes that fall.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+def main():
+    t = int(input())
+    for _ in range(t):
+        n, m, l = map(int, input().split())
+        g = [[] for _ in range(n + 1)]
+        for _ in range(m):
+            x, y = map(int, input().split())
+            g[x].append(y)
+
+        visited = [False] * (n + 1)
+        fallen = 0
+
+        for _ in range(l):
+            z = int(input())
+            if not visited[z]:
+                stack = [z]
+                visited[z] = True
+                fallen += 1
+                while stack:
+                    v = stack.pop()
+                    for u in g[v]:
+                        if not visited[u]:
+                            visited[u] = True
+                            fallen += 1
+                            stack.append(u)
+
+        print(fallen)
+
+if __name__ == "__main__":
+    main()
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+      <p>The basic idea is to treat the dominoes that knock each other over as a directed graph
+        and for each hand-knocked domino $z$, run a DFS to mark all nodes reachable from $z$. Use a 
+        <code>visited</code> array so that we never count a domino twice. The answer is the number of 
+        unique visited dominoes.
+      </p>
+
+      <p>Number of test cases saved as <code>t</code>. Save variables $n$, $m$, and $\ell$. 
+    Create an adjacency list for $n$ dominoes or vertices in our graph. For the pairs of 
+dominoes interactions in the $m$ lines that follow, save them in the adjacency list. Create a visited array for 
+for all dominoes, initializing all of them to <code>False</code>. Set up a fallen counter for fallen dominoes</p>
+
+<p>Iterate through the $\ell$ lines of dominoes we knock over by hand. Save each domino in variable 
+    $z$. If we haven't visited this domino, push it into a stack, and mark <code>visited</code>  
+    to <code>True</code>, and increment <code>fallen</code>. 
+</p>
+
+<p>While our stack is not empty, pop an element, and go through each of its neighbours in 
+    the adjacency list. If we haven't visited a neighbour, mark <code>visited</code> to <code>True</code>, 
+    increment <code>fallen</code>, and push to stack. 
+</p>
+    </section>
+  </div>
+</body>

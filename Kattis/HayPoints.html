@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+    
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Hay Points</span>
+    </header>
+
+    <h1>Hay Points</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+        You are given a list of words with a salary number next to them. Then, you are given some 
+        job descriptions that may contain some of these words listed above. For each description, 
+        sum up the salary numbers associated to the words that are contained in these job descriptions.
+      </p>
+
+     
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>Two numbers, one for each word and its salary number, and the other for the number of job descriptions.</li>
+        <li>Some words with their salary numbers separated by a space.</li>
+        <li>Some job descriptions, each separated by a line containing a period.</li>
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>The sum of the salary numbers associated to words that are contained within the job descritpion.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+from collections import defaultdict
+
+word_limit, job_limit = list(map(int, input().split()))
+
+dictionary = defaultdict(lambda: 0)
+for i in range(word_limit):
+    word, salary = input().split()
+    dictionary[word] = int(salary)
+
+jobs_shown = 0
+hay_points = 0
+while jobs_shown < job_limit:
+    sentence = input()
+
+    if sentence != ".":
+        words = sentence.split()
+        for word in words:
+            hay_points += dictionary[word]
+    else:
+        jobs_shown += 1
+        print(hay_points)
+
+        hay_points = 0
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+      <p>First save the number of words and the number of job descriptions in two variables.
+      </p>
+      <p>Initialize an empty dictionary. Then, loop through the number of words and store 
+        the word name as the key and the salary number as the value in the dictionary.
+      </p>
+      <p>Initialize the hay points to zero, and the number of descriptions seen to zero.
+        Split all words in the description in an array, and iterate through the array 
+    and increment hay points by the salary number of any words that match in our dictionary. 
+Once our sentence is complete, increment our job number, print our hay points, and set it to zero 
+for the next job description. </p>
+    </section>
+  </div>
+</body>

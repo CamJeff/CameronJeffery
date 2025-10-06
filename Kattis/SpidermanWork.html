@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+    
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Spiderman's Workout</span>
+    </header>
+
+    <h1>Spiderman's Workout</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+        Given a sequence of numbers which represent how far Spiderman can travel up or down, he wants 
+        to know for which number should he travel up ($\text{U}$) or down ($\text{D}$) such that he starts 
+        and ends on street level, and has the smallest maximum height reached. Of course, he can't travel below street level. 
+      </p>
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>An integer $N$ for number of test scenarios</li>
+        <li>$2N$ lines specifying the test scenarios. First line is integer $M$, which is 
+          the number of distances, and the second line contains $M$ positive numbers/distances.
+        </li>
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>The sequence of $\text{U}$ or $\text{D}$ moves so that he starts and ends on street level. Print IMPOSSIBLE 
+        if no solution exists. 
+      </p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+def solve_case(a):
+    m = len(a)
+    S = sum(a)                        
+    dp = [None] * (S + 1)              
+    dp[0] = 0
+
+    prev_h = [[-1] * (S + 1) for _ in range(m + 1)]
+    prev_c = [['']  * (S + 1) for _ in range(m + 1)]
+
+    for i in range(1, m + 1):
+        d = a[i - 1]
+        ndp = [None] * (S + 1)
+        for h in range(S + 1):
+            if dp[h] is None: 
+                continue
+
+            nh = h + d
+            if nh <= S:
+                best = max(dp[h], nh)
+                if ndp[nh] is None or best < ndp[nh]:
+                    ndp[nh] = best
+                    prev_h[i][nh] = h
+                    prev_c[i][nh] = 'U'
+
+            nh = h - d
+            if nh >= 0:
+                best = dp[h]
+                if ndp[nh] is None or best < ndp[nh]:
+                    ndp[nh] = best
+                    prev_h[i][nh] = h
+                    prev_c[i][nh] = 'D'
+        dp = ndp
+
+    if dp[0] is None:
+        return "IMPOSSIBLE"
+
+    res = []
+    h = 0
+    for i in range(m, 0, -1):
+        res.append(prev_c[i][h])
+        h = prev_h[i][h]
+    return "".join(reversed(res))
+
+
+def main():
+    t = int(input())
+    for _ in range(t):
+        m = int(input())
+        a = list(map(int, input().split()))
+        print(solve_case(a))
+
+if __name__ == "__main__":
+    main()
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+      <p>
+        Our array <code>dp[h]</code> is the smallest peak heaight seen along any legal path that 
+        ends at current height $h$. For each transition <code>d</code>, from height <code>h</code>, 
+        we can go: up to <code>nh = h + d</code> with new peak <code>max(dp[h], nh)</code>, or down 
+        to <code>nh = h - d</code> (if <code>nh >= 0</code>) with peak unchanged at <code>dp[h]</code>.
+      </p>
+
+      <p>Save list of distances as variable <code>a</code>, number of steps as variable <code>m</code>, 
+      and <code>S</code> is the upper bound on any reachable height. Initialize <code>dp</code> array, 
+    which again stores minimal peak height among all legal ways to reach height <code>h</code> 
+  after current number of steps. Set <code>dp[o]=0</code>.</p>
+
+  <p><code>prev_h[i][h]</code> stores height we came from step <code>i-1</code> to reach height 
+  <code>h</code> after step <code>i</code>. <code>prev_c[i][h]</code> stores the move used at step <code>i</code>
+to reach height <code>h</code> (whether up or down).</p>
+
+      <p>Iterating through steps 1 to $m$, let <code>d</code> be distance at step <code>i</code>,
+      and <code>ndp</code> will be next layer of DP after considering each step. Then, loop through all reachable 
+    heights <code>h</code>.</p>
+
+    <p>Let's first try up: <code>nh = h + d</code>, with the new peak being the maximum of the prior peak, 
+    <code>dp[h]</code>, and the new height <code>nh</code>. If this improves minimal peak at <code>nh</code>, 
+  record it and remember the predecessor and move. </p>
+
+  <p>Then we try down: <code>nh = h - d</code>, and we must in addition check that new height <code>nh</code> is not 
+  negative, but update if this yields a smaller peak for <code>nh</code>.</p>
+
+  <p>By <code>dp = ndp</code>, we move to the next step. If <code>dp[0]</code> is <code>None</code>, 
+  then we know after all steps, a height of $0$ isn't reachable, so there is no legal solution. If not, we 
+reconstruct the moves backwards, starting at <code>i=m</code> and <code>h=0</code>, reading the moves 
+to reach <code>h</code>, then jumping to the previous height. </p>
+    </section>
+  </div>
+</body>

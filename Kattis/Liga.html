@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+    
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Liga</span>
+    </header>
+
+    <h1>Liga</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+        You are given a scoreboard of teams with 5 field from left to right: games played, 
+        games that won, drew, and loss, and the total number of points. You earn 3 points for 
+        a win, and 1 for a draw. Some fields in the scoreboard might be missing. Write a program 
+        that prints out the complete scoreboard.
+      </p>
+
+     
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>An integer $N$, indicated number of teams on the scoreboard.</li>
+        <li>Next $N$ lines are lines that have each of the five fields for the $N$ teams, 
+            but some fields may be missing, denoted as "?". 
+        </li>
+
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>The completed scoreboard.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+for _ in range(int(input())):
+    g, w, d, l, p = input().strip().split()
+    unknowns = 5
+    if g != '?': unknowns -= 1; g = int(g)
+    if w != '?': unknowns -= 1; w = int(w)
+    if d != '?': unknowns -= 1; d = int(d)
+    if l != '?': unknowns -= 1; l = int(l)
+    if p != '?': unknowns -= 1; p = int(p)
+
+    if not unknowns:
+        print(g, w, d, l, p)
+    else:
+        if g == '?' and l == '?':
+            if w != '?' and d != '?': pass
+            elif w != '?': d = p-3*w if p != '?' else 0
+            elif d != '?': w = (p-d)//3 if p != '?' else 0
+            else:
+                for wd in range(10404):
+                    w, d = wd//102, wd%102
+                    if w+d < 101 and p==3*w+d: break
+            print(100, w, d, 0, 3*w+d)
+
+        elif g == '?':
+            if w != '?' and d != '?': pass
+            elif w != '?': d = p-3*w if p != '?' else 0
+            elif d != '?': w = (p-d)//3 if p != '?' else 0
+            else:
+                for wd in range(10404):
+                    w, d = wd//102, wd%102
+                    if w+d+l < 101 and (p=='?' or p==3*w+d): break
+            print(w+d+l, w, d, l, 3*w+d)
+
+        elif l == '?':
+            if w != '?' and d != '?': pass
+            elif w != '?': d = p-3*w if p != '?' else 0
+            elif d != '?': w = (p-d)//3 if p != '?' else 0
+            else:
+                for wd in range(10404):
+                    w, d = wd//102, wd%102
+                    if w+d<=min(g,100) and (p=='?' or p==3*w+d): break
+            print(g, w, d, g-w-d, 3*w+d)
+
+        else:
+            if w != '?' and d != '?': pass
+            elif w != '?': d = p-3*w if p != '?' else g-w-l
+            elif d != '?': w = (p-d)//3 if p != '?' else g-d-l
+            else:
+                for wd in range(10404):
+                    w, d = wd//102, wd%102
+                    if w+d+l==g and (p=='?' or p==3*w+d): break
+            print(g, w, d, l, 3*w+d)
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+      <p> Loop through each line and save each field as variable $g, w, d, l$, and $p$ for 
+        games played, won, drew, lost, and points. Initialize an unknown variable to 5, which 
+        keeps track of how many unknowns we have in our fields. We decrement this as we check 
+        our variables are not missing ('?'). If no unknown, print out the line as is. 
+      </p>
+
+      <p>Case 1: games and losses unknown. </p>
+      <ul>
+        <li>If $w$ and $d$ are known, nothing extra to compute, so pass.</li>
+        <li>If $w$ is known, we can deduce $d$ from $p=3w+d$ or $d=p-3w$</li>
+        <li>If $d$ is known, we can deduce $w$ from $p=3w+d$ or $w=(p-d)/3$</li>
+        <li>If both $w$ and $d$ are unknown, we brute force over pairs of $(w,d)$.
+            Trying $w\in [0,101]$ and $d\in [0,101]$ using a loop over $102\times 102=10404$. We 
+            add the constrain that $w+d< 101$, forcing $w+d\leq 100$ and $p=3w+d$
+        </li>
+        <li>After determining $(w,d)$, we print the max games $g=100$ and $l=0$.</li>
+      </ul>
+
+      <p>Case 2: games unknown and losses known.</p>
+
+      <ul>
+        <li>If $w$ and $d$ are known, nothing extra to compute, so pass.</li>
+        <li>if $w$ is knwon, we can deduce $d$ from $p=3w+d$ or $d=p-3w$</li>
+        <li>If $d$ is known, we can deduce $w$ from $p=3w+d$ or $w=(p-d)/3$</li>
+        <li>We similarly brute force over pairs of $(w,d)$, but now under the constraint 
+            $w+d+l< 101$, forcing $w+d+l\leq 100$ (since we know $l$). If $p$ is known, enforce 
+            $p=3w+d$.
+        </li>
+        <li>After determining $(w,d)$, set games to $g=w+d+l$, and $p=3w+d$.</li>
+      </ul>
+
+      <p>Case 3: games known and losses unknown.</p>
+
+            <ul>
+        <li>If $w$ and $d$ are known, nothing extra to compute, so pass.</li>
+        <li>if $w$ is knwon, we can deduce $d$ from $p=3w+d$ or $d=p-3w$</li>
+        <li>If $d$ is known, we can deduce $w$ from $p=3w+d$ or $w=(p-d)/3$</li>
+        <li>We similarly brute force over pairs of $(w,d)$, but now under the constraint 
+            $w+d\leq g$, and since $g\leq 100$, we take the minimum of the two. If $p$ is known,
+            enforce $p=3w+d$.
+        </li>
+        <li>After determining $(w,d)$, set losses to $l=g-w-d$ and points to $p=3w+d$.</li>
+      </ul>
+
+      <p>Case 4: games and losses known.</p>
+
+                  <ul>
+        <li>If $w$ and $d$ are known, nothing extra to compute, so pass.</li>
+        <li>if $w$ is knwon, we can deduce $d$ from $p=3w+d$ or $d=p-3w$</li>
+        <li>If $d$ is known, we can deduce $w$ from $p=3w+d$ or $w=(p-d)/3$</li>
+        <li>We similarly brute force over pairs of $(w,d)$, but now under the constraint 
+            $w+d+l=g$. If $p$ is known, enforce $p=3w+d$.
+        </li>
+        <li>After determining $(w,d)$, set points to $p=3w+d$.</li>
+      </ul>
+      
+
+    </section>
+  </div>
+</body>

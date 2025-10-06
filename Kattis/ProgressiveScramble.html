@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Competitive Programming</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+      --accent-weak: #e0f2fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    .card-title {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: clamp(16px, 3.2vw, 18px);
+    }
+
+    .code-cell pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+  </style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="puzzles-app">
+    <!-- Consistent header -->
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+    
+<body>
+  <div class="container">
+    <header class="breadcrumbs">
+      <a href="index.html">← Back to Index</a>
+      <span class="sep">/</span>
+      <span>Progressive Scramble</span>
+    </header>
+
+    <h1>Progressive Scramble</h1>
+
+    <!-- Stacked layout: statement, code, explanation -->
+    <section class="card">
+      <h2 class="card-title">Problem Statement</h2>
+      <p>
+        Given a message of symbols $s_1,\dots,s_n$ we encrypt by first converting the first
+        symbol into it's numeric value $u_1=v(s_1)$, and then for each subsequent symbol 
+        $s_i$, the computed value is $u_i=v(s_i)+u_{i-1}$, which is the sum of the associated numeric 
+        value and the value of the previous symbol. At this point, the message is a sequence of numeric values.
+        To convert back into letters, take all $u_i$ modulo $27$ (for 27 characters - a space has numeric value of 0).
+        Finally, replace the value with the corresponding letter symbol. 
+      </p>
+
+     
+      <p><strong>Input</strong></p>
+      <ul>
+        <li>An integer $n$ representing the number of string sequences</li>
+        <li>A message that starts with either an 'e' for encrypt, or 'd' for decrypt.</li>
+      </ul>
+      <p><strong>Output</strong></p>
+      <p>The result of the encryption or decryption.</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Reference Code (Python)</h2>
+
+      <!-- Your requested code-cell template -->
+      <div class="code-cell">
+        <pre><code class="language-python">
+def v(ch):            
+    return 0 if ch == ' ' else ord(ch) - 96  
+
+def s(val):            
+    return ' ' if val == 0 else chr(val + 96)
+
+def encrypt(msg):
+    total = 0
+    out = []
+    for ch in msg:
+        total += v(ch)         
+        out.append(s(total % 27))     
+    return ''.join(out)
+
+def decrypt(msg):
+    prev_u = 0
+    out = []
+    for ch in msg:
+        x = v(ch)                   
+        u = x
+        while u < prev_u:          
+            u += 27
+        out.append(s(u - prev_u))     
+        prev_u = u
+    return ''.join(out)
+
+def main():
+    t = int(input())
+    for _ in range(t):
+        op, msg = input().split(' ', 1)
+        print(encrypt(msg) if op == 'e' else decrypt(msg))
+
+if __name__ == "__main__":
+    main()
+        </code></pre>
+      </div>
+
+
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Solution Explanation</h2>
+        <p>The first two functions simply map character to its numeric value, or a 
+            numeric value to its character representation.
+        </p>
+
+        <p>In the main, we iterate through all test cases, and save the message in a variable 
+            and pass it to either our encrypt or decrypt function.
+        </p>
+
+        <p>Encrypt: Start a running total of zero. Create an empty out array for each letter 
+            we encrypt. Iterating through our message, we convert to numeric value and increment our 
+            total. Then we append to out the numeric total modulo 27, converting back into a character. 
+        </p>
+
+        <p>Decrypt: prev_u stores $u_{i-1}$, starting at 0 to start. The array out again 
+            collects all decrypted letters. Iterating through our message, we convert to 
+        numeric form and save it in variable u. Choose the smallest u congruent to x modulo 27 
+    by adding 27 until it is. Recover the original value $v(s_1)=u_1-u_{i-1}$ and map it back 
+into a character, adding it to our out array. Update prev_u. </p>
+    </section>
+  </div>
+</body>

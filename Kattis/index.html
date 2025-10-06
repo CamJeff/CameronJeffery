@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Puzzles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- keep your shared look/feel -->
+  <link rel="stylesheet" href="../COMP_551_Notes/css/style.css">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <style>
+    :root{
+      --bg: #ffffff;
+      --text: #0f172a;       /* slate-900 */
+      --muted: #475569;      /* slate-600 */
+      --border: #e2e8f0;     /* slate-200 */
+      --accent: #0ea5e9;     /* sky-500 */
+      --accent-weak: #e0f2fe;/* sky-100 */
+    }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* No sidebar layout: simple single-column wrapper */
+    .puzzles-app { min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      position: sticky; top: 0; z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Same header look as your other pages */
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px; /* brand / centered title / spacer */
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .brand { font-weight: 800; letter-spacing: .3px; }
+    .brand a { color: inherit; text-decoration: none; }
+    .course-title { text-align: center; font-weight: 600; font-size: clamp(18px,2.2vw,22px); }
+
+    /* Center the content */
+    main {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+      box-sizing: border-box;
+      flex: 1 0 auto;
+    }
+
+    .muted { color: var(--muted); }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+      margin-top: 16px;
+    }
+
+    /* Search UI */
+    .search-row { position: relative; min-width: 0; }
+    .input {
+      width: 100%;
+      padding: 14px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      outline: none;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      box-sizing: border-box; /* prevents overflow */
+    }
+    .input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-weak);
+    }
+
+    .dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;                 /* align with input width */
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: none;
+      max-height: 260px;
+      overflow-y: auto;
+      z-index: 10;
+      box-sizing: border-box;
+    }
+    .item {
+      padding: 10px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+    }
+    .item:last-child { border-bottom: none; }
+    .item:hover, .item.active { background: var(--accent-weak); }
+
+    .list { list-style: none; margin: 0; padding: 0; }
+    .list li a {
+      display: block;
+      padding: 12px 12px;
+      color: var(--text);
+      border-top: 1px solid var(--border);
+      text-decoration: none;
+    }
+    .list li:first-child a { border-top: none; }
+    .list li a:hover { background: var(--accent-weak); }
+  </style>
+</head>
+<body>
+  <div class="puzzles-app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Competitive Programming Problems</div>
+        <div></div>
+      </div>
+    </header>
+
+    <main>
+      <h1>Problem Index</h1>
+      <p class="muted">Search by title (case-insensitive). Type to see suggestions, then tap/click to open.</p>
+
+      <section class="card">
+        <div class="search-row">
+          <input id="search" class="input" type="text" placeholder="Search problems" autocomplete="off" />
+          <div id="dropdown" class="dropdown" role="listbox" aria-label="Search suggestions"></div>
+        </div>
+        <div class="hint muted" style="margin-top:8px;">Enter opens the top match. Use ↑/↓ to navigate suggestions.</div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title" style="margin:0 0 10px; font-size: clamp(16px, 3.2vw, 18px); color: var(--muted);">Navigation Catalogue</h2>
+        <ul id="catalogueList" class="list"></ul>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Problem data (title + link only)
+    const PROBLEMS = [
+      { title: "Where's My Internet? (2.1)", href: "WMI.html" },
+      { title: "Spiderman's Workout (3.6)", href: "SpidermanWork.html" },
+      { title: "Birds on a Wire (2.6)", href: "BirdsWire.html" },
+      { title: "Hot Springs (2.7)", href: "hotsprings.html" },
+      { title: "Quick Estimates (1.9)", href: "QuickEstimates.html" },
+      { title: "Simon Says (1.4)", href: "SimonSays.html" },
+      { title: "A New Alphabet (2.0)", href: "NewAphabet.html" },
+      { title: "Hay Points (2.1)", href: "HayPoints.html" },
+      { title: "Island Buses (6.2)", href: "IslandBuses.html" },
+      { title: "Peg Solitaire (3.1)", href: "PegSolitaire.html" },
+      { title: "Dominoes 2 (2.6)", href: "Dominoes2.html" },
+      { title: "Primary Regsiter (2.4)", href: "PrimaryRegister.html" },
+      { title: "Pivot (2.3)", href: "Pivot.html" },
+      { title: "Trik (1.4)", href: "Trik.html" },
+      { title: "Moscow Dream (1.8)", href: "MoscowDream.html" },
+      { title: "Liga (7.2)", href: "Liga.html" },
+      { title: "Exact Change 2 (3.9)", href: "ExactChange2.html" },
+      { title: "Progressive Scramble (2.2)", href: "ProgressiveScramble.html" },
+      { title: "Almost Union Find (3.9)", href: "AlmostUnion.html" },
+    ];
+
+    const input = document.getElementById('search');
+    const dropdown = document.getElementById('dropdown');
+    const catalogueList = document.getElementById('catalogueList');
+
+    function renderCatalogue() {
+      catalogueList.innerHTML = '';
+      PROBLEMS
+        .slice()
+        .sort((a,b) => a.title.localeCompare(b.title))
+        .forEach(p => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = p.href;
+          a.textContent = p.title;
+          li.appendChild(a);
+          catalogueList.appendChild(li);
+        });
+    }
+
+    function searchProblems(q) {
+      if (!q) return [];
+      const s = q.toLowerCase();
+      return PROBLEMS.filter(p => p.title.toLowerCase().includes(s));
+    }
+
+    let activeIndex = -1;
+
+    function renderDropdown(items) {
+      dropdown.innerHTML = '';
+      activeIndex = -1;
+      if (!items.length) {
+        dropdown.style.display = 'none';
+        return;
+      }
+      items.slice(0, 8).forEach((p) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.textContent = p.title;
+        div.setAttribute('role', 'option');
+        div.addEventListener('click', () => window.location.href = p.href);
+        dropdown.appendChild(div);
+      });
+      dropdown.style.display = 'block';
+    }
+
+    function highlight(idx) {
+      [...dropdown.children].forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+      });
+    }
+
+    input.addEventListener('input', (e) => {
+      const q = e.target.value.trim();
+      renderDropdown(searchProblems(q));
+    });
+
+    input.addEventListener('keydown', (e) => {
+      const items = [...dropdown.children];
+      if (!items.length) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = (activeIndex + 1) % items.length;
+        highlight(activeIndex);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = (activeIndex - 1 + items.length) % items.length;
+        highlight(activeIndex);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const results = searchProblems(input.value.trim());
+        const choice = activeIndex >= 0 ? results[activeIndex] : results[0];
+        if (choice) window.location.href = choice.href;
+      } else if (e.key === 'Escape') {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-row')) dropdown.style.display = 'none';
+    });
+
+    renderCatalogue();
+  </script>
+</body>
+</html>
