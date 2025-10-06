@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notes — John Doe</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../index.html"><strong>Cameron Jeffery</strong></a></div>
+        <nav class="navbar" aria-label="Primary">
+          <a href="../research/index.html">Research</a>
+          <a href="../notes/index.html">Notes</a>
+          <a href="../puzzles/">Puzzles</a>
+          <a href="../cv/index.html">CV</a>
+        </nav>
+        <div></div>
+      </div>
+    </header>
+
+    <!-- Sidebar now holds profile -->
+    <nav class="sidebar" aria-label="Profile sidebar">
+      <aside class="profile">
+        <div class="photo">
+          <img src="../assets/profile.png" alt="headshot">
+        </div>
+        <h1>Cameron Jeffery</h1>
+        <div class="title">Physics Student @ McGill</div>
+        <ul class="profile-links">
+  <li><i class="fa-solid fa-location-dot"></i> Montréal, Canada</li>
+  <li>
+    <i class="fa-brands fa-github"></i>
+    <a href="https://github.com/CamJeff" target="_blank" rel="noopener">CamJeff</a>
+  </li>
+</ul>
+      </aside>
+    </nav>
+
+    <main>
+      <section>
+        <h1>Notes</h1>
+        <p class="muted">This is a place where a keep a log of notes that I've taken for some of my 
+          favourite classes at McGill. There are plenty more classes I would wish to add, but unfortunately 
+          I've only started tryharding note-taking by using <span class="latex">L<sup>a</sup>T<sub>e</sub>X</span>
+          only recently. And even so, as the semester goes on, I often switch back to the more traditional and less-time consuming 
+          form of note-taking in pencil+paper. And so, the process of converting my notes here is a slightly laborious; 
+          which is why some parts are "under construction".
+        </p>
+      </section>
+
+      <div class="grid" style="margin-top: 20px;">
+        <!-- COMP 551 card -->
+        <a class="card-link" href="../COMP_551_Notes/index.html">
+          <article class="card-row">
+            <div class="thumb">
+              <img src="../assets/Bot.jpg" alt="ML Notes thumb" />
+            </div>
+            <div class="content">
+              <h2><strong>Applied Machine Learning</strong></h2>
+              <p>All my notes for COMP 551: Applied Machine Learning taken 
+                at McGill in Fall 2025.<em>(Taught by Reihaneh Rabbany and Sékou-Oumar Kaba)</em>
+              </p>
+            </div>
+          </article>
+        </a>
+
+        <div class="grid" style="margin-top: 20px;">
+        <!-- COMP 551 card -->
+        <a class="card-link" href="../Stoch_Notes/index.html">
+          <article class="card-row">
+            <div class="thumb">
+              <img src="../assets/Stoch.png" alt="SP Notes thumb" />
+            </div>
+            <div class="content">
+              <h2><strong>Stochastic Processes</strong></h2>
+              <p>All my notes for MATH 447: Introduction to Stochastic Processes taken at McGill in 
+                Winter 2025. <em>(Taught by Elliot Paquette)</em>
+              </p>
+            </div>
+          </article>
+        </a>
+
+        <!-- Add more note collections as needed -->
+      </div>
+    </main>
+  </div>
+</body>
+</html>
