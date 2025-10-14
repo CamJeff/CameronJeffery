@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Applied Machine Learning</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../notes/index.html"><strong>Notes</strong></a></div>
+        <div class="course-title">Applied Machine Learning</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+      <h2>Lectures</h2>
+      <ul class="nav-list">
+        <!-- Link back to Lecture 1 on index.html -->
+        <li class="nav-item"><a href="index.html#lecture-1">Lecture 1: Intro to ML</a></li>
+        <!-- Current page's section anchor -->
+        <li class="nav-item"><a href="lecture2.html">Lecture 2: Parameter Estimation</a></li>
+        <li class="nav-item"><a href="lecture3.html">Lecture 3: Linear Regression</a></li>
+        <li class="nav-item"><a href="lecture4.html">Lecture 4: Logistic and Softmax Regression</a></li>
+        <li class="nav-item"><a href="lecture5.html">Lecture 5: Gradient Descent</a></li>
+        <li class="nav-item"><a href="lecture6.html">Lecture 6: Regularization</a></li>
+        <li class="nav-item"><a href="lecture7.html">Lecture 7: Generalization</a></li>
+        <li class="nav-item"><a href="lecture8.html">Lecture 8: Multilayer Perceptron</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <!-- Minimal skeleton for Lecture 2 content; ready to fill later -->
+      <section id="lecture-6" class="section">
+        <div class="kicker">Lecture 7</div>
+        <h1>Generalization</h1>
+        <div class="spacer"></div>
+        <div class="card">
+
+                                                    <p>Let us first import some libraries:</p>
+            <div class="code-cell">
+  <pre><code class="language-python">
+import numpy as np
+%matplotlib notebook
+%matplotlib inline
+import matplotlib.pyplot as plt
+from IPython.core.debugger import set_trace
+import warnings
+warnings.filterwarnings('ignore')
+from sklearn import datasets, neighbors
+np.random.seed(1234)
+  </code></pre>
+</div>
+
+            <p>I'm sure we're getting the broad idea of ML: you want to learn about a function that 
+                maps your input to your output, where your input is represented by a set of features, and 
+                your output is a set of labels, and then your function is taking your input, has some parameters, 
+                and giving you your output:
+            </p>
+
+            $$x\rightarrow f(x;w)\rightarrow y$$
+
+            <p>How we can figure out the values of our parameters so that we can fit our data is to 
+                use the training set of $N$ examples of input/output observations, $\mathcal{D}=\left\{\left(x^{(n)},y^{(n)}\right)\right\}_{n=1}^N$, 
+                and we find the weights such that they minimize a cost function, which says that our function output should be 
+                close to the observed output, per instance averaged over all our training data points. For linear regression, recall our model is a linear combination of the weights $\hat{y}=f_w(x)=\mathbf{w}^{\top}\mathbf{x}\;:\;\mathbb{R}^D\rightarrow \mathbb{R}$, 
+                with our cost function being the squared loss.
+            </p>
+            
+
+            <p>The main goal of all of this is not to fit our training data, but rather how well our model 
+                generalizes to future unseen data. This idea of generalization relates to two concepts: <b>bias</b> and 
+                <b>variance</b>.
+            </p>
+
+            <p><b>Bias</b> says that our model is too simple, and because of that our model underfits the data 
+            and has a large error. <b>Variance</b> says that our model is too expressive and overfits the data. On 
+        training data, it will have a low error, but will have a large variance for future points that could come in, 
+    and thus will have a large error on the unseen test data. We saw previously that regularization was a way 
+to help balance the trade-offs of both bias and variance. Take a look at some below examples:</p>
+
+                    <img src="Pics/ManyExx.png" alt="ManyExx" class="centered-image">
+
+
+
+                <p>Consider each row above ($\mathcal{D}_1$, $\mathcal{D}_2$, $\mathcal{D}_3$) as different 
+                    training data sets, taken from true distribution $F(x)$. In each column, we fit some models 
+                    of varying complexity. The model in the first column is shown to have a high bias, since the model 
+                    doesn't change very appreciably for different data sets (between rows), and it has a high error due to 
+                    underfitting. 
+                </p>
+
+                <p>The curves in middle column is shown to have a high variance. This is because, although for each row the 
+                    model fits the data very well, we see that the curve shape varies a lot for each new data set (between rows), 
+                    and thus may not generalize well. 
+                </p>
+
+                <p>Now let's try to understand how bias and variance contribute to the generalization error, and 
+                    let's do this for L2 loss. Assume that we sample points from a true distribution $p(x,y)$ in the 
+                    form a dataset $\mathcal{D}=\left\{\left(x^{(n)},y^{(n)}\right)\right\}_n$, and from this dataset we 
+                    develop a model $\hat{f}_{\mathcal{D}}$. And so, our <b>generalization error</b> or expected loss will 
+                    be on average, how different are our training data points is different from the prediction of our developed model, 
+                    i.e $\mathbb{E}[(\hat{f}_{\mathcal{D}}-y)^2]$
+                </p>
+
+                <p>Let's try to re-write this. Let $y=f(x)+\epsilon$, where $\epsilon$ represents the inherent 
+                    noise in the data, and then for $\hat{f}_{\mathcal{D}}$, let's add and subtract the term 
+                    $\mathbb{E}_{\mathcal{D}}[\hat{f}_{\mathcal{D}}(x)]$.
+                </p>
+
+                <img src="Pics/Work.png" alt="Work" class="centered-image">
+
+                <p>And by linearity of expectation, we can end with:</p>
+
+                $$=\color{orange}\underbrace{\mathbb{E}[(\hat{f}_{\mathcal{D}}(x)-\mathbb{E}_{\mathcal{D}}[\hat{f}_{\mathcal{D}}(x)])^2]}_{\text{Variance}}\color{black}+\color{red}\underbrace{
+                \mathbb{E}[(f(x)-\mathbb{E}_{\mathcal{D}}[\hat{f}_{\mathcal{D}}(x)])^2]}_{\text{Bias^2}}\color{black}+\color{green}\mathbb{E}[\epsilon^2]\color{black}$$
+
+                <p>From the above expression, we see that variance is simply the difference between the average prediction of 
+                    our model and the predicted value from our model on each instance, all averaged. Bias, is similar, but measures 
+                    the difference between the average prediction of our model and the value of the <i>true</i> model, all averaged. 
+                </p>
+
+
+                <p>To visualize graphically, suppose you have different training datasets, each with 25 
+                    data points (not shown in the graph), and each dataset you feed to a linear regression model 
+                    and produces one of the red lines below in the left graph. Suppose that all datasets have points 
+                    sampled from one true distribution, which is shown in the green curve on the right graph. Then, 
+                    if you average out each of the red curves, you produce the smooth solid red curve on the right graph. 
+                    Here, the variance refers to the spread of each of the red curves in the left graph, whereas the bias refers 
+                    to the difference between the red and green curves on the right graph. 
+                </p>
+
+                <img src="Pics/VarvBias.png" alt="VarvBias" class="centered-image">
+
+
+                <p>As shown below, we also notice that changing the regularization coefficient will also 
+                    change the variance and bias. Usually a large regularization coefficient will constrain the weights 
+                    and thus result in a lower variance. However, with low variance comes high bias:
+                </p>
+
+                <img src="Pics/RegVB.png" alt="RegVB" class="centered-image-big">
+
+                <p>And from this, it seems reasonable that we would want to select a value of $\lambda$ that will 
+                    minimizes the sum of variance and bias (squared). Note the gap in our test error is due to the 
+                    noise we baked into our sampled data. This is simply a vertical translation due to $\epsilon$, and 
+                    should have no impact on the optimal value of $\lambda$. 
+                </p>
+
+                <p>Below shows the more general effect model complexity has on the prediction error. We notice that using
+                    the average training error is, in fact, not a good way to choose your hyperparameters, because for small 
+                    training error, you are overfitting the data and have a very high variance, and there is a large gap between 
+                    the test error and the training error. On the left extreme end, 
+                    the bias is high is more simplistic models which would mean the training error will be high. 
+                </p>
+
+                <img src="Pics/GeneralE.png" alt="GeneralE" class="centered-image">
+
+
+                <h2>Model Selection</h2>
+
+                <p>From the above information, it seems that the best model we can have is one that strikes a balance
+                  between the bias and variance (so we don't underfit or overfit), and thus model selection is crucial. 
+                  This really just boils down to selecting good values for our hyperparameters. 
+                </p>
+
+                <p>Let's code up a brief example to illustrate the importance of model selection. Using a California 
+                  housing dataset, let's use <code>scikit-learn</code>'s implementation of <code>KNN</code> (we haven't seen 
+                  this method yet, so just go with it).
+                </p>
+
+                            <div class="code-cell">
+  <pre><code class="language-python">
+#Loading the california housing data set
+x, y = datasets.fetch_california_housing(return_X_y=True)
+(num_instances, num_features), num_classes = x.shape, np.max(y)+1
+
+#define a function for the MSE loss
+loss = lambda y, yh: np.mean((y-yh)**2)
+
+n_test = num_instances // 5
+inds = np.random.permutation(num_instances)
+x_train, y_train = x[inds[n_test:]], y[inds[n_test:]]
+x_test, y_test = x[inds[:n_test]], y[inds[:n_test]]
+
+#Plot the mean square error for different K values stored in K_list
+K_list = range(1,100)
+err_train, err_test = [], []
+for i, K in enumerate(K_list):
+    model = neighbors.KNeighborsRegressor(n_neighbors=K)
+    model = model.fit(x_train, y_train)
+    err_test.append(loss(model.predict(x_test), y_test))
+    err_train.append(loss(model.predict(x_train), y_train))
+
+plt.plot(K_list, err_test, '-', label='unseen')
+plt.plot(K_list, err_train, '-', label='train')
+plt.legend()
+plt.xlabel('hyper parameter')
+plt.ylabel('mean squared error')
+plt.show()
+  </code></pre>
+</div>
+
+          <img src="Pics/Output.png" alt="Output" class="centered-image-big">
+
+
+          <p>The above graph shows both extremes - on the left with overfit, as shown from the 
+            near zero training error we get, but very high test error. On the right we underfit, 
+            as the training error we get is quite high. Based on the orange training error, it is not 
+            informative as to where we should choose our hyperparameter to be. So, we look to the blue curve, 
+            the test error on the unseen data, and select the hyperparameter which minimizes this error, as shown 
+            by the star above. 
+          </p>
+
+          <p>This provides a good motivation to why model selection is important, but first let's start with 
+            some assumptions. Firstly, assume that the data points we train our model on are sampled from some 
+            true distribution, $x^{(n)},y^{(n)}\sim p(x,y)$, and also our testing data that we want to predict on 
+            also comes from this same true distribution. This is why we tend to split our data into a training set,
+            and a testing set. 
+          </p>
+
+          <p>Below shows an example of this using handwritten digits, with the goal to try and predict 
+            which digit has been written. 
+          </p>
+
+          <img src="Pics/Train_Test.png" alt="Output" class="centered-image-big">
+
+
+          <p>And so, in our model, we are mapping input to output, so in the example above, our model 
+            takes as input a handrwritten digit and outputs what digit has been written, i.e $f:$<img src="Pics/Map.png" alt="Map" class="inline-img">. 
+            We also have a loss function, that takes as input the real data point and the predicted data point and measures 
+            the error in our prediction, i.e $\ell:(y,\hat{y})\rightarrow\mathbb{R}$. For example, this loss function is 
+            $\ell (y,\hat{y})=(y-\hat{y})^2$ for linear regression, and $\ell (y,\hat{y})=\mathbb{I}(y\neq \hat{y})$ for 
+            classification (or cross entropy). And finally, we train our model to find the best parameters such that the average 
+            loss for all data points is minimized, i.e $J=\frac{1}{|\mathcal{D}_{\text{train}}|}\sum_{x,y\in \mathcal{D}_{\text{train}}}\ell (y,f(x))$. Note we often 
+            drop the scaling factor in front of the sum since it won't affect the optimization.
+          </p>
+
+          <p>But what we really care about is <b>generalization error</b>, that is, the expected loss we see 
+        when sampling data points from our distribution, i.e $\mathbb{E}_{(x,y)\sim p}\ell(y,f(x))$. In other words, we want to see how our model generalizes to unseen data Now, 
+      in practice, we can't usually measure this because we typically don't know what the true distribution looks like. 
+    Instead, we can estimate it by setting aside a portion of our given data, as shown in our example below:</p>
+
+    <img src="Pics/Unseen.png" alt="Unseen" class="centered-image-big">
+
+    <p>So, if we want to tune the hyperparameters of our model, we can use a similar idea for picking the best hyperparameter. Ideally, we want to pick hyperparameters that give us 
+      the best generalization error, or test error. However, it would be a mistake to adjust our model based on the test data; this could lead to overfitting to our test data, which 
+      means the performance on the test data is no longer an unbiased estimate of generalization error. So we can set aside another subset of our dataset for doing model selection. 
+      This is called the <b>validation set</b>.</p>
+
+      <p>So in total, the training set is for selecting parameters/weights, the validation set is for 
+        selecting hyperparameters, and the test set is for assessing how well our model performs. Below is some 
+        code that plots the validation error and the test error for the same housing dataset:
+      </p>
+
+
+                            <div class="code-cell">
+  <pre><code class="language-python">
+#Split into train, validation and test (8:1:1)
+n_test, n_valid = num_instances // 10, num_instances // 10
+inds = np.random.permutation(num_instances)
+x_test, y_test = x[inds[:n_test]], y[inds[:n_test]]
+x_valid, y_valid = x[inds[n_test:n_test+n_valid]], y[inds[n_test:n_test+n_valid]]
+x_train, y_train = x[inds[n_test+n_valid:]], y[inds[n_test+n_valid:]]
+
+#Plot the mean square error for different K values stored in K_list
+K_list = range(1,30)
+err_train, err_test, err_valid = [], [], []
+for i, K in enumerate(K_list):
+    model = neighbors.KNeighborsRegressor(n_neighbors=K)
+    model = model.fit(x_train, y_train)
+    err_test.append(loss(model.predict(x_test), y_test))
+    err_valid.append(loss(model.predict(x_valid), y_valid))
+    err_train.append(loss(model.predict(x_train), y_train))
+    
+plt.plot(K_list, err_test,  label='test')
+plt.plot(K_list, err_valid, label='validation')
+
+plt.legend()
+plt.xlabel('hyper parameter')
+plt.ylabel('mean squared error')
+plt.show()
+  </code></pre>
+</div>
+        <img src="Pics/Valid.png" alt="Unseen" class="centered-image">
+
+
+        <p>Note that once we pick the best hyperparameters for our model we can use both 
+          train $+$ validation sets to retrain the model. This is only practical if training 
+          can be done efficiently. In the figure above you can notice that validation error can be slightly different 
+          from the test error (simply re-run the code). This difference is due to the size of both validation 
+          and test sets. </p>
+          
+          <p>We can get a better estimate of the validation error and its variance using <b>cross validation</b>: the 
+            idea is to repeat the training-validation using a different portion of the data. 
+            Then we can use the mean and the variance of the training and validation error over these repetitions. 
+            For this, it is best to use non-overlapping validation sets: for example use, 
+            first we set aside $10\%$ of the data for test. Then, in a 5-fold cross-validation, 
+            we would divide the remaining $90\%$ to 5 subsets. At each iteration of cross-validation, 
+            one of these 5 subsets will be used for validation and the remaining 4 will be used for training. 
+            Once we pick the best model using mean and variance of the validation error, we can train the model 
+            using the entire $90\%$ of the data. Finally, we report the performance on the test set.</p>
+
+
+            <p>Below shows an example with our handwritten digits. We generally divide the (training $+$ validation) 
+              into $L$ parts, and use one part for validation, and the remaining $L-1$ parts for training. 
+            </p>
+          
+          <img src="Pics/5L.png" alt="5L" class="centered-image-big">
+
+          <p>And then you perform $L-1$ more runs so that we can us validation for each of the $L$ parts, as shown below:</p>
+
+          <img src="Pics/Runs.png" alt="Runs" class="centered-image-big">
+
+          <p>And then finally, we select our hyperparameter based on the average validation error and its variance.
+            That is, for run $i$, you will get error $e_i$, and for $L$ total runs, your average error is $\overline{e}=\frac 1L \sum_{i=1}^L e_i$.
+            Below we implement a method that returns train and validation split for cross-validation.
+          </p>
+
+                                      <div class="code-cell">
+  <pre><code class="language-python">
+def cross_validate(n, n_folds=10):
+    #get the number of data samples in each split
+    n_val = n // n_folds
+    inds = np.random.permutation(n)
+    inds = []
+    for f in range(n_folds):
+        tr_inds = []
+        #get the validation indexes
+        val_inds = list(range(f * n_val, (f+1)*n_val))
+        #get the train indexes
+        if f > 0:
+            tr_inds = list(range(f*n_val))
+        if f < n_folds - 1:
+            tr_inds = tr_inds + list(range((f+1)*n_val, n))
+        #The yield statement suspends function’s execution and sends a value back to the caller
+        #but retains enough state information to enable function to resume where it is left off
+        yield tr_inds, val_inds
+  </code></pre>
+</div>
+
+        <p>Let's first set aside the test data</p>
+
+                                      <div class="code-cell">
+  <pre><code class="language-python">
+inds = np.random.permutation(num_instances)
+#seperate the test data
+x_test, y_test = x[inds[:n_test]], y[inds[:n_test]]
+x_rest, y_rest = x[inds[n_test:]], y[inds[n_test:]]
+#rest for training and validation
+n_rest = num_instances - n_test
+  </code></pre>
+</div>
+
+<p>Then we use cross-validation to find the best set of hyperparameters</p>
+
+                                      <div class="code-cell">
+  <pre><code class="language-python">
+num_folds = 10
+err_test, err_valid = np.zeros(len(K_list)), np.zeros((len(K_list), num_folds))
+for i, K in enumerate(K_list):
+    #Find the validation errors for num_folds splits for a given K
+    for f, (tr, val) in enumerate(cross_validate(n_rest, num_folds)):
+        model = neighbors.KNeighborsRegressor(n_neighbors=K)
+        model = model.fit(x_rest[tr], y_rest[tr])
+        err_valid[i, f] = loss(y_rest[val], model.predict(x_rest[val]))
+    #this is the part that we don't do in a usual setup. We don't touch the test set until the very end. 
+    model = neighbors.KNeighborsRegressor(n_neighbors=K)
+    model = model.fit(x_rest, y_rest)
+    err_test[i]= loss(y_test, model.predict(x_test))
+    
+plt.plot(K_list, err_test,  label='test')
+plt.errorbar(K_list, np.mean(err_valid, axis=1), np.std(err_valid, axis=1), label='validation')
+plt.legend()
+plt.xlabel('hyper parameter')
+plt.ylabel('mean squared error')
+plt.show()
+  </code></pre>
+</div>
+
+          <img src="Pics/ErrornSuch.png" alt="ErrornSuch" class="centered-image">
+
+          <p>Note that the test error is plotted only to show its agreement with the validation error; in practice we don't look at the test set for hyperparameter tunning</p>
+
+          <p>A simple rule of thumb for picking the best model using cross-validation is to pick the simplest model that is within one standard deviation of the best performing model.
+            This is because these model within this standard deviation perform more or less optimally, and we assume the simplest models generalize better. 
+          </p>
+
+          <p>And finally, once we have our hyperparameters, its best to train your model again on the <em>full</em> training set (all $L$ pieces)
+          to make sure your parameters are indeed optimal. Then we can evaulate on our test set.</p>
+          
+
+          <h2>Performance Metrics</h2>
+
+
+          <p>Let's start with metrics related to classification. If you have a classfier that outputs True or False, this 
+          opens the door to two types of error: <b>False Positive (Type I Error)</b>, or <b>False Negative (Type II Error)</b>.
+          For example, a type I error would be if a patient does not have a disease but received a positive diagnostic. A type II 
+          error would be if the patient did have the disease but was not deteced. </p>
+
+          <p>We can summarize these results in a <b>confusion matrix</b>, as shown below. RP stands for results positive 
+          (which is the sum of true positives and false positives), RN stands for results negative (sum of true and 
+        false negatives). </p>
+
+
+        <img src="Pics/Confusion.png" alt="Confusion" class="centered-image-big">
+
+        <p>Below are some common metrics we can use report from the confusion matrix:</p>
+
+
+        <img src="Pics/Metric.png" alt="Metric" class="centered-image">
+
+
+        <p>Let's calculate the confusion matrix of our housing dataset:</p>
+
+                                              <div class="code-cell">
+  <pre><code class="language-python">
+from sklearn import tree, model_selection
+x, y = datasets.load_iris(return_X_y=True)
+x_train, x_test, y_train, y_test = model_selection.train_test_split(x, y, test_size=0.2) # this is similar to our manual split above
+yh_test = tree.DecisionTreeClassifier().fit(x_train, y_train).predict(x_test)
+
+def confusion_matrix(y, yh):
+    n_classes = np.max(y) + 1
+    c_matrix = np.zeros((n_classes, n_classes))
+    for c1 in range(n_classes):
+        for c2 in range(n_classes):
+            #(y==c1)*(yh==c2) is 1 when both conditions are true or 0
+            c_matrix[c1, c2] = np.sum((y==c1)*(yh==c2))
+    return c_matrix
+
+cmat = confusion_matrix(y_test, yh_test)
+print(cmat)
+print(f'accuracy: {np.sum(np.diag(cmat))/np.sum(cmat)}')
+  </code></pre>
+</div>
+
+        $$\texttt{[[10. 0. 0.]}$$
+        $$\texttt{  [ 0. 10. 1.]}$$
+        $$\texttt{  [ 0. 2. 7.]]}$$
+        $$\texttt{accuracy: 0.9}$$
+
+
+
+        <p>There is often a tradeoff between precision and recall. If we have a classifier that is predicting 
+          two different classes,  we need a decision boundary that  we can use to separate them. We want some way to 
+          evaluate the class scores of probabilities in a way that is independent of where we put this boundary of threshold. 
+        </p>
+
+        <p>How can we do this, because it seems our choice of threshold has an impact. This is because if we make a 
+          sensitive threshold to the point where we have no false positives, we may not have any true positives at all. Similalrly, 
+          if we place the threshold such that there are no false negatives, we may also not have any true negatives as well.
+        </p>
+          
+        <p>We can analyze this by plotting a <b>Receiver Operating Charactistic (ROC) cuvre</b>. What we are doing 
+        is plotting the false positive rate vs the true positive rate for different threshold values:</p>
+
+
+        <img src="Pics/ROC.png" alt="ROC" class="centered-image">
+
+        <p>Notice the positions of the ideal classifier (true positive rate is $1$), and a random classifier, which 
+          classifies our data randomly. Of course, we would want to maximize the Area Under the Curve (AUC) to get a 
+          better classifier, and we can approximate this by using a sum of boxes:
+        </p>
+
+        $$AUC=\sum_t TPR(t)\left[FPR(t)-FPR(t-1)\right]$$
+
+        <p>Where $TPR(t)=TP(t)/P$, i.e the recall value for different sensitivity thresholds $t$, and 
+          $FPR(t)=FP(t)/N$, i.e the fallout value, the false alarm or type I error rate, at different 
+          sensitivity thresholds $t$. 
+        </p>
+
+        <p>Similar to ROC curves, you can also plot <b>Precision-Recall Curves</b>, which is simply the precision value 
+          plotted over the recall values for different threshold sensitivity values. These are far less common, 
+        but quite helpful when especially when your data is imbalanced or lop-sided (e.g you have far more 
+      positives than negatives). Especially useful for this case since ROC curves are insensitive to class imbalance.</p>
+
+
+      <p>Note you can also generalize the confusion matrix to a $C\times C$ size, where $C$ is the number of classifiers 
+        you have. Each entry shows the input data point (row), and what it was classified as (column). Of course, the aim is to 
+        maximize the diagonal entries (i.e you have correct classification). An example of classifying different objects in images 
+        is shown below:
+      </p>
+
+      <img src="Pics/BigC.png" alt="BigC" class="centered-image-big">
+
+      <p>Indeed, the classifier's accuracy is the sum of the diagonal elements divided by the sum of all entries 
+        of the matrix. Also notice the recall values computed per row (diagonal element divided by sum of all row elements), 
+        and also the precision values computed per column (diagonal element divided by sum of all column elements).
+      </p>
+
+
+      <p>In the real world, it's important to be cognizant of the distribution of our input training data, since that's all 
+        your model will have to learn from. As such, any demographic or phenotypic gaps in your training data can introduce bias 
+        in your model. Below shows some examples of this concerning effect. 
+      </p>
+
+      <ul>
+        <li>Amazon's hiring algorithm decides not to invite women to interview. Read it <a href="https://www.reuters.com/article/us-amazon-com-jobs-automation-insight/amazon-scraps-secret-ai-recruiting-tool-that-showed-bias-against-women-idUSKCN1MK08G/" target="_blank" rel="noopener">Here</a>.</li>
+        <li>Google's online ad algorithm decides to show high-income jobs to men much more often
+than to women. Read it <a href="https://arxiv.org/abs/1408.6491" target="_blank" rel="noopener">Here</a>.</li>
+        <li>A machine learning algorithm denies you credit based on race or gender. Read it <a href="https://theconversation.com/did-artificial-intelligence-deny-you-credit-73259" target="_blank" rel="noopener">Here</a>.</li>
+        <li>Health care algorithm offers less care to black patients. Read it <a href="https://www.wired.com/story/how-algorithm-favored-whites-over-blacks-health-care/" target="_blank" rel="noopener">Here</a> and <a href="https://www.nature.com/articles/d41586-019-03228-6" target="_blank" rel="noopener">Here</a>.</li>
+        <li>Florida risk score algorithm used in courts assign higher risk to black defendants. Read it <a href="https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing" target="_blank" rel="noopener">Here</a>.</li>
+      </ul>
+
+      <p>A common approach to solve this problem is to separate your testing data by these critical demographic markers (race, gender, etc.) and evaulate the 
+        performance of your model on each of these test sets individually, to ensure a similar quality of performance for each demographic. 
+      </p>
+
+      <p>Learning algorithms make implicit assumptions, for exampe, we are often biased towards simplest explanations 
+        of our data (Occam's Razor), and these sorts of assumptions are known as <b>learning</b> or <b>inductive bias</b>.
+        It typically makes sense of learning algorithms to be biased, as the world is not random, and there are regularities 
+        that often appear, so induction is possible.
+      </p>
+
+      <p>A common concept in machine learning is the <b>curse of dimensionality</b>, which refers to the fact that 
+      learning in high dimensions can be difficult, since the volume of space grows exponentially fast with the dimension.
+    For example, suppose our data is uniformly distributed in some range, say $x\in [0,3]^D$, and we predict the label 
+  by counting labels in the same unit space. And so, to have at least one example per unit, we need $3^D$ training examples, 
+and for $D=180$, we need more training examples than the number of particles in the universe.</p>
+
+          <p>Moreover, as you increase your dimensions, the distance between your data points becomes skewed 
+            and their distances will becomes smaller to the point where they are indistinguishable. 
+          </p>
+
+          <img src="Pics/Closer.png" alt="Closer" class="centered-image-big">
+
+
+          <p>A geometrical example below shows why the points become much closer together, because at higher 
+            dimensions, the volumes shrinks to the corners. 
+          </p>
+
+          <img src="Pics/Geom.png" alt="Geom" class="centered-image-big">
+
+          <p>Now, this is just an example for random data points, but in practice, we can still work in 
+            higher dimensions for real-word datasets, since these are not usually distributed uniformly 
+            and randomly. Because of this, the data can be thought of as existing on a lower dimension 
+            manifold, known as the <b>manifold hypothesis</b>. 
+          </p>
+          
+          <p>Below is one such example where we have $64\times 64$ pixel image ($D=$number of pixels, $64\times 64$) of a hand that is either open,
+            or rotated at the wrist. And thus, since these images are not random and be described by these two descriptors, 
+            we can say that the dataset lies on a $D=2$ (for finger extension and wrist rotated).
+          </p>
+
+          <img src="Pics/Wrist.png" alt="Geom" class="centered-image">
+
+
+          <p>Lastly, there is the concept of the <b>No Free Lunch Theorem</b>, which asserts that when the performance of all optimization methods is averaged across all conceivable problems, they all perform equally well. It indicates that no one optimum optimization algorithm exists.</p>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Active link handling:
+    // 1) Highlight the link that points to the current page (by pathname)
+    // 2) When scrolling within this page, update the active link to the visible section
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+
+    // Highlight by current page
+    links.forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.href);
+      if (url.pathname === location.pathname) a.classList.add('active');
+    });
+
+    // If there are in-page sections, also track by intersection
+    const sectionAnchors = links
+      .map(a => {
+        const url = new URL(a.getAttribute('href'), location.href);
+        return url.pathname === location.pathname && url.hash
+          ? document.querySelector(url.hash)
+          : null;
+      })
+      .filter(Boolean);
+
+    if (sectionAnchors.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const id = '#' + entry.target.id;
+          links.forEach(l => {
+            const url = new URL(l.getAttribute('href'), location.href);
+            if (url.pathname === location.pathname && url.hash === id) {
+              l.classList.toggle('active', entry.isIntersecting);
+            }
+          });
+        });
+      }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+      sectionAnchors.forEach(sec => observer.observe(sec));
+    }
+  </script>
+</body>
+</html>

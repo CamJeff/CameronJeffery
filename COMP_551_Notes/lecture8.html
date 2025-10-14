@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Applied Machine Learning</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../notes/index.html"><strong>Notes</strong></a></div>
+        <div class="course-title">Applied Machine Learning</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+      <h2>Lectures</h2>
+      <ul class="nav-list">
+        <!-- Link back to Lecture 1 on index.html -->
+        <li class="nav-item"><a href="index.html#lecture-1">Lecture 1: Intro to ML</a></li>
+        <!-- Current page's section anchor -->
+        <li class="nav-item"><a href="lecture2.html">Lecture 2: Parameter Estimation</a></li>
+        <li class="nav-item"><a href="lecture3.html">Lecture 3: Linear Regression</a></li>
+        <li class="nav-item"><a href="lecture4.html">Lecture 4: Logistic and Softmax Regression</a></li>
+        <li class="nav-item"><a href="lecture5.html">Lecture 5: Gradient Descent</a></li>
+        <li class="nav-item"><a href="lecture6.html">Lecture 6: Regularization</a></li>
+        <li class="nav-item"><a href="lecture7.html">Lecture 7: Generalization</a></li>
+        <li class="nav-item"><a href="lecture8.html">Lecture 8: Multilayer Perceptron</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <!-- Minimal skeleton for Lecture 2 content; ready to fill later -->
+      <section id="lecture-6" class="section">
+        <div class="kicker">Lecture 8</div>
+        <h1>Multilayer Perceptron</h1>
+        <div class="spacer"></div>
+        <div class="card">
+
+            <p>The <b>perceptron</b> was the first model to come out the connectionist paradigm of 
+            machine learning, which takes inspiration from neuroscience and how neurons interact 
+        within the brain. With a perceptron, you model a neuron by a sum of activations (both excitatory and inhibatory)
+    coming from other neighboring neurons. If this weighted sum of signals coming from these neurons 
+            reach a certain threshold, the neuron will potentiate (as modelled by some step function). </p>
+
+
+            <img src="Pics/Neuron.png" alt="Neuron" class="centered-image">
+
+
+            <p>The first version of a perceptron looked something like:</p>
+
+            $$f(x)=\text{sign} \left(\mathbf{w}^{\top}\mathbf{x}+w_0\right)$$
+
+            <p>Where $\mathbf{x}$ is the vector input to the perceptron, analogous to the strength of 
+                signals coming into the neuron. Similarly to regression, we have a weight vector $\mathbf{w}$,
+                and a bias term $w_0$. The sign function is just a step function - in that it returns $+1$ for positive 
+                inputs, and $-1$ for negative inputs.  
+            </p>
+
+            <p>These are typically used in classification problems, and so we assume the usual: $x^{(n)}$ represents 
+                ourt features, and our $\hat{y}^{(n)}$ are the predictions. Of course, if $y^{(n)}\hat{y}^{(n)}< 0$,
+            this implies our predicted outcome and true outcome are of different signs and therefore were classified 
+            differently (and our model prediction was incorrect/misclassified). And so, it makes sense that the loss 
+        function we want to minimize will look something like: $-y^{(n)}\left(\mathbf{w}^{\top}\mathbf{x}+w_0\right)$This is positive for points that are on the wrong side (misclassified), and so we minimize it and 
+            push them to the right side. 
+        </p>
+
+        <p>Indeed, if $y^{(n)}\hat{y}^{(n)}< 0$, we minimize:</p>
+
+        $$J_n(\mathbf{w})=-y^{(n)}\left(\mathbf{w}^{\top}x^{(n)}\right)$$
+
+        <p>Otherwise, do nothing (note we drop the bias term for simplicity). For optimization, we can use 
+            stochastic gradient descent:
+        </p>
+
+        $$\nabla J_n(\mathbf{w})=-y^{(n)}x^{(n)}$$
+
+        <p>And proceed to iteratively update the weights through the following:</p>
+
+        $$w^{\{t+1\}}\leftarrow w^{\{t\}}-\alpha \nabla J_n(\mathbf{w})=w^{\{t\}}+\alpha y^{(n)}x^{(n)}$$
+
+        <p>For perceptrons, it is okay to use a learning rate of $1$, since scaling the weights does not affect 
+            the prediction, i.e $\text{sign}\left(\mathbf{w}^{\top}\mathbf{x}\right)=\text{sign}\left(\alpha \mathbf{w}^{\top}\mathbf{x}\right)$.
+            Also worth noting is that by the Perceptron Convergence Theorem, gradient descent is guaranteed to converge 
+            in a finite number of steps if the data is linearly separable. 
+        </p>
+
+
+        <img src="Pics/IrisG.png" alt="IrisG" class="centered-image">
+
+        <p>The above shows an example of the Iris data set, and a set of lines that gradually converge to 
+            properly separate the data. As we can see, there are two distinct classes that can be separated by a line, 
+            and this is what we call linearly separable data. 
+        </p>
+
+        <p>Below shows an example of non linearly separable data, and so the algorthm will not converge as 
+            you cannot perfectly classify every data point, and so the weights will be continuously updated 
+            (and not even in a way that necessarily improves the classification - it tends to be more random).
+        </p>
+
+        <img src="Pics/Nonlinsep.png" alt="Nonlinsep" class="centered-image">
+
+        <p>We see that an issue we run into is that the perceptron is not expressive enough, meaning it 
+            cannot express complex functions. One way we have seen to increase model expressiveness is to 
+            used fixed nonlinear bases. But for neural networks, it is more common to use <b>adaptive bases</b>, 
+            where we can learn the parameters of the bases themselves. Let's get a feel for adaptive bases by looking 
+            at some examples we have seen:
+        </p>
+
+        <h3>Adaptive Gaussian Bases</h3>
+
+        <p>In the <b>non-adaptive case</b>, recall we express our model by a weighted sum of Gaussian bases, and train it by minimizing some cost function,
+            such as the mean squared error (which is convex in $w$). The model is linear in parameters $\phi(x)$, but of course non-linear in $x$.
+            In the end, we can train data based on the blue curve below to get the green fitted curve.
+        </p>
+
+        \begin{align*} \text{Model:} & \;\;f(x;w)=\sum_m w_m \phi_m(x)
+        \\ \text{Cost:} & \;\; J(w)=\frac 12 \sum_n \left(f(x^{(n)};w)-y^{(n)}\right)^2
+        \end{align*}
+
+        <img src="Pics/Yum.png" alt="Yum" class="centered-image">
+
+        <p>In the <b>adaptive case</b>, you not only have $w$ as a learnable parameter, but as $\mu$, the means 
+        of each of the Gaussian bases. In this case, the loss function is no longer to be guaranteed convex in 
+    all model parameters, and so we use gradient descent to find a local minimum. Notice we get a better fit than 
+the one above.</p>
+
+            $$\text{Model:}\;\;f(x;w,\mu)=\sum_m w_m \phi_m (x;\mu_m)$$
+
+            <img src="Pics/Yum2.png" alt="Yum2" class="centered-image">
+
+
+            <p>Below is a nice illustration for how these models work: You have an input $x$ corresponding 
+                to a single feature, and you pass it through each of the Gaussian bases and sum the resulting 
+                outputs to give you your prediction.
+            </p>
+
+            <img src="Pics/Gauss.png" alt="Gauss" class="centered-image-small">
+
+
+            <h3>Adaptive Sigmoid Bases</h3>
+
+            <p>And similarly, for the adaptive case, we can re-write the sigmoid basis function as:</p>
+
+            $$\phi_m(x)=\sigma\left(\frac{x-\mu_m}{s_m}\right)=\sigma\left(v_mx+b_m\right)$$
+
+            <p>And so our model is:</p>
+
+            $$f(x;w,v,b)=\sum_m w_m \sigma \left(v_mx+b_m\right)$$
+
+            <p>And then similarly optimize using gradient descent to find a <em>local</em> minimum.</p>
+
+            <p>We can then try to generalize this. If we have some input $\mathbf{x}$ with dimension $D$, 
+                then we will have one weight vector per dimension of our input (i.e the weights are a matrix).
+                Here, $\color{blue}V$ represents the parameters of the bases themselves, and $\color{green}W$
+                are the weights of the model linear in $\phi_m(x)$. And so, our model will look like:
+            </p>
+
+            $$\phi_m(x)=\sigma\left(v_m^{\top}x+b_m\right)\;\;\;\;\forall \;m$$
+
+
+            <img src="Pics/General.png" alt="General" class="centered-image-big">
+
+            <p>Notice we concatenate a $1$ in our input for the bias term. We can start to see how this is forming 
+                a neural network, on the right we have a two-layer neural network with a so-called "hidden layer", where 
+                we train our basis parameters. We typically optimize $\color{blue}V$ and $\color{green}W$ using 
+                gradient descent.
+            </p>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Active link handling:
+    // 1) Highlight the link that points to the current page (by pathname)
+    // 2) When scrolling within this page, update the active link to the visible section
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+
+    // Highlight by current page
+    links.forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.href);
+      if (url.pathname === location.pathname) a.classList.add('active');
+    });
+
+    // If there are in-page sections, also track by intersection
+    const sectionAnchors = links
+      .map(a => {
+        const url = new URL(a.getAttribute('href'), location.href);
+        return url.pathname === location.pathname && url.hash
+          ? document.querySelector(url.hash)
+          : null;
+      })
+      .filter(Boolean);
+
+    if (sectionAnchors.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const id = '#' + entry.target.id;
+          links.forEach(l => {
+            const url = new URL(l.getAttribute('href'), location.href);
+            if (url.pathname === location.pathname && url.hash === id) {
+              l.classList.toggle('active', entry.isIntersecting);
+            }
+          });
+        });
+      }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+      sectionAnchors.forEach(sec => observer.observe(sec));
+    }
+  </script>
+</body>
+</html>

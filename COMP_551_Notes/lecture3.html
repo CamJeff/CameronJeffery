@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Applied Machine Learning</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+       <div class="brand"><a href="../notes/index.html"><strong>Notes</strong></a></div>
+        <div class="course-title">Applied Machine Learning</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+      <h2>Lectures</h2>
+      <ul class="nav-list">
+        <!-- Link back to Lecture 1 on index.html -->
+        <li class="nav-item"><a href="index.html#lecture-1">Lecture 1: Intro to ML</a></li>
+        <!-- Current page's section anchor -->
+        <li class="nav-item"><a href="lecture2.html">Lecture 2: Parameter Estimation</a></li>
+        <li class="nav-item"><a href="lecture3.html">Lecture 3: Linear Regression</a></li>
+        <li class="nav-item"><a href="lecture4.html">Lecture 4: Logistic and Softmax Regression</a></li>
+        <li class="nav-item"><a href="lecture5.html">Lecture 5: Gradient Descent</a></li>
+        <li class="nav-item"><a href="lecture6.html">Lecture 6: Regularization</a></li>
+        <li class="nav-item"><a href="lecture7.html">Lecture 7: Generalization</a></li>
+        <li class="nav-item"><a href="lecture8.html">Lecture 8: Multilayer Perceptron</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <!-- Minimal skeleton for Lecture 2 content; ready to fill later -->
+      <section id="lecture-3" class="section">
+        <div class="kicker">Lecture 3</div>
+        <h1>Linear Regression</h1>
+        <div class="spacer"></div>
+        <div class="card">
+
+                      <p>Let us first import some libraries:</p>
+            <div class="code-cell">
+  <pre><code class="language-python">
+import numpy as np
+#%matplotlib notebook
+%matplotlib inline
+import matplotlib.pyplot as plt
+from IPython.core.debugger import set_trace
+import warnings
+warnings.filterwarnings('ignore')
+  </code></pre>
+</div>
+
+
+            <p>Here we discuss linear regression, which is a very widely used method for predicting a real-valued output,
+                and although is one of the most straightforward machine learning techniques, it's arguably the most important.
+                The basic idea is that we want to predict a real-valued output (called the <b>dependent variable</b>
+                or <b>target</b>) $y\in \mathbb{R}$, given a vector of real-valued inputs (called <b>independent variables</b>,
+                or <b>covariates</b>) $x\in \mathbb{R}^{D}$ in the form:
+            </p>
+            $$x=\begin{bmatrix}x_1 \\ x_2 \\ \vdots \\ x_D\end{bmatrix}=\begin{bmatrix}x_1 & x_2 & \cdots & x_D\end{bmatrix}^{\top}$$
+            <p>We assume there are $N$ instances in the dataset $\mathcal{D}=\left\{\left(x^{(n)},y^{(n)}\right)\right\}_{n=1}^N$,
+                with each instance having $D$ features indexed by $d$. Denote an instance of the dataset as $x^{(n)}\in \mathbb{R}^D$,
+                or $y^{(n)}\in\mathbb{R}$. For example, we could write $x_d^{(n)}\in \mathbb{R}$ is a feature $d$ of instance $n$.
+            </p>
+            <p>It is useful to put all of the covariates into a matrix. We simply concatenate all the feature vectors 
+                associated to each data point into a matrix, called the <b>design matrix</b>. Here, the rows are the datapoints 
+                associated to one instance, and the coumns are the datapoints associated with the feature. 
+            </p>
+            $$\textbf{X}=\begin{bmatrix} x^{(1)^{\top}} \\ x^{(2)^{\top}} \\ \vdots \\ x^{(N)^{\top}}   \end{bmatrix}
+            =\begin{bmatrix} x_1^{(1)} & x_2^{(1)} & \cdots & x_D^{(1)} \\ \vdots & \vdots & \ddots & \vdots \\ x_1^{(N)} & x_2^{(N)} & \cdots & x_D^{(N)} \end{bmatrix}\in \mathbb{R}^{N\times D}$$
+            <p>It is then sensible to do the same with the labels of dependent variables, concatenating them into a column vector:</p>
+            $$\mathbf{y}=\begin{bmatrix} y^{(1)} \\ y^{(2)} \\ \vdots \\ y^{(N)} \end{bmatrix}$$
+            <p>Define $f_w:\mathbb{R}^{D}\rightarrow \mathbb{R}$ as the mapping between the covariate inputs to the real-valued labeled output as:</p>
+            $$f_w(x)+w_0+w_1x_1+\cdots+w_Dx_D$$
+
+            <p>The vector of parameters $w_{1:D}$ are known as the <b>weights</b> or <b>regression coefficients</b>. Each
+coefficient $w_d$ specifies the change in the output we expect if we change the corresponding input
+feature $x_d$ by one unit. For example, suppose $x_1$ is the age of a person, $x_2$ is their education level
+(represented as a continuous number), and $y$ is their income. Thus $w_1$ corresponds to the increase
+in income we expect as someone becomes one year older (and hence get more experience), and $w_2$
+corresponds to the increase in income we expect as someone’s education level increases by one level.
+The term $w_0$ is the <b>intercept</b> or <b>bias term</b>, and specifies the output value if all the inputs are 0. This
+captures the unconditional mean of the response, $w_0 = \mathbb{E}[y]$, and acts as a baseline.</p>
+
+<p>We will usually assume that $\mathbf{x}$ is written as $[1,x_1,\cdots,x_D]^{\top}$, so we can absorb the intercept
+    term $w_0$ into the weight vector $\mathbf{w}=[w_0,w_1,\cdots,w_D]^{\top}$, and so we can write more compactly:
+</p>
+$$f_w(x)=\mathbf{w}^{\top}\mathbf{x}$$
+
+<p>We can define our Linear Regression class as follows:</p>
+
+            <div class="code-cell">
+  <pre><code class="language-python">
+class LinearRegression:
+    def __init__(self, add_bias=True):
+        self.add_bias = add_bias
+        pass
+    
+    def fit(self, x, y):
+        if x.ndim == 1:
+            x = x[:, None]                         #add a dimension for the features
+        N = x.shape[0]
+        if self.add_bias:
+            x = np.column_stack([x,np.ones(N)])    #add bias by adding a constant feature of value 1
+        #alternatively: self.w = np.linalg.inv(x.T @ x)@x.T@y
+        self.w = np.linalg.lstsq(x, y)[0]          #return w for the least square difference
+        return self
+    
+    def predict(self, x):
+        if self.add_bias:
+            x = np.column_stack([x,np.ones(N)])
+        yh = x@self.w                             #predict the y values
+        return yh
+  </code></pre>
+</div>
+
+<p>And then we can fit this linear model to toy data with $x \in \mathbb{R}^1$ + a bias parameter</p>
+
+            <div class="code-cell">
+  <pre><code class="language-python">
+N = 20
+x = np.random.rand(N) * 10              #generate N random numbers from 0-10
+y = -3*x + 3 + 1*np.random.randn(N)     #generate y using a linear model and add some noise
+model = LinearRegression()
+yh = model.fit(x,y).predict(x)
+plt.plot(x, y, '.')
+plt.plot(x, yh, 'g-', alpha=.5)
+plt.xlabel('x')
+plt.ylabel(r'$y=xw_1 + w_0$')
+plt.show()
+  </code></pre>
+</div>
+
+<img src="Pics/Toy.png" alt="Toy" class="centered-image">
+
+
+
+<p>How can we asses how well our model fits to our data? Consider the below diagram </p>
+<img src="Pics/res.png" alt="NLL" class="centered-image">
+
+<p>Define $\hat{y}=f_w(x)$ as the predicted value given by our regression line, and let $y$ be the true data point. 
+    Define the residual as the difference between these values, $y-\hat{y}=y-f_w(x)$. Of course, the better out fit is,
+    the smaller these residuals should be. To be able to quantify all the residuals, define the <b>L2 loss</b> as:
+</p>
+$$L(y,\hat{y})\stackrel{\Delta}{=}\frac 12(y-\hat{y})^2$$
+
+<p>We square the residuals so they all turn positive, and it gives a "penalty" to residuals that may be larger, and hence
+    not well fitted to our regression line. In addition, this function is very easy to differentiate if we want to optimize it (hence the factor of $\frac 12$). 
+    And that's exactly what we will do! We want to find parameters to fit the data as best as possible, i.e $f_w\left(x^{(n)}\right)\approx y^{(n)}$. Summing
+    the residuals for all data points gives us the <b>sum of squared errors</b> or the <b>cost/loss function:</b>
+</p>
+$$J(w)=\frac 12 \sum_{n=1}^N \left(y^{(n)}-\mathbf{w}^{\top}x^{(n)}\right)^2$$
+
+<p>And so, our problem is to find values for the weights, $w^*$ that minimizes $J(w)$, which is a process known as 
+    <b>linear least squares</b>. I.e finding $w^*$ such that:
+</p>
+$$w^*=\arg\min_w\sum_n \frac 12 \left(y^{(n)}-\mathbf{w}^{\top}x^{(n)}\right)^2$$
+
+<p>Let's start with an easy example, with our model being $f_w(x)=wx$. Then we have:</p>
+$$J(w)=\frac 12 \sum_n \left(y^{(n)}-wx^{(n)}\right)^2\;\;\;\Longrightarrow\;\;\;\frac{dJ}{dw}=\sum_n x^{(n)}\left(wx^{(n)}-y^{(n)}\right)$$
+
+<p>Setting the derivative to zero and solving for $w$, we obtain:</p>
+$$w^*=\frac{\sum_n x^{(n)}y^{(n)}}{\sum_n x^{(n)^2}}$$
+
+<p>What about a simple linear regression case, where now we have weight $w_0$, and $w_1$? Well, we would then need 
+    to compute the <i>partial</i> derivative of the cost/loss function with respect to each variable to optimize it. 
+    In a similar spirit, for $D$ weights in our regression, we take the gradient of the cost/loss function:
+</p>
+$$\nabla J(\mathbf{w})=\begin{bmatrix} \frac{\partial}{\partial w_1}J(\mathbf{w}) \cdots \frac{\partial}{\partial w_D}J(\mathbf{w})\end{bmatrix}^{\top}$$
+
+<p>And so, we can say in the general case, we optimize the weights indexed by $d$ by finding the critical points by setting:</p>
+$$\frac{\partial}{\partial w_d}J(\mathbf{w})=\frac{\partial}{\partial w_d}\sum_n \frac 12 \left(y^{(n)}-f_w\left(x^{(n)}\right)\right)^2=0$$
+
+<p>By applying the chain rule:</p>
+$$\frac{\partial J}{\partial w_d}=\frac{dJ}{df_w}\frac{\partial f_w}{\partial w_d}=\sum_n \left(\mathbf{w}^{\top}x^{(n)}-y^{(n)}\right)x_d^{(n)}=0\;\;\;\;\forall\;d\in\{1,\dots,D\}$$
+
+<p>But perhaps it is more convenient to do this analysis using vectors and matrices. In other terms, out linear least squares problem becomes:</p>
+$$\arg\min_w \frac 12 ||\mathbf{y}-\mathbf{X}\mathbf{w}||^2=\frac 12(\mathbf{y}-\mathbf{X}\mathbf{w})^{\top}(\mathbf{y}-\mathbf{X}\mathbf{w})=J(\mathbf{w})$$
+<p>And differentiating:</p>
+$$\frac{\partial J(\mathbf{w})}{\partial \mathbf{w}}=\frac{\partial}{\partial \mathbf{w}}\left[\mathbf{y}^{\top}\mathbf{y}+\mathbf{w}^{\top}\mathbf{X}^{\top} \mathbf{X}\mathbf{w}-2\mathbf{y}^{\top}\mathbf{X}\mathbf{w}\right]$$
+
+<p>Where we used the trick $\mathbf{y}^{\top}\mathbf{X}\mathbf{w}=\mathbf{w}^{\top}\mathbf{X}^{\top}\mathbf{y}$. 
+    Using some matrix differentiation, i.e $\frac{\partial \mathbf{X}\mathbf{w}}{\partial \mathbf{w}}=\mathbf{X}^{\top}$,
+    and $\frac{\partial \mathbf{w}^{\top}\mathbf{X}\mathbf{w}}{\partial \mathbf{w}}=2\mathbf{X}\mathbf{w}$, we get:
+</p>
+$$\frac{\partial J(\mathbf{w})}{\partial \mathbf{w}}=0+2\mathbf{X}^{\top}\mathbf{X}\mathbf{w}-2\mathbf{X}^{\top}\mathbf{y}=2\mathbf{X}^{\top}(\mathbf{X}\mathbf{w}-\mathbf{y})$$
+
+<p>Setting equal to 0:</p>
+$$\underbrace{\mathbf{X}^{\top}}_{D\times N}\underbrace{(\mathbf{y}-\mathbf{X}\mathbf{w})}_{N\times 1}=\mathbf{0}$$
+<p>Notice the result is a vector of dimension $D$, that we want to be all $0$. So we can rearrange as:</p>
+$$\mathbf{X}^{\top}\mathbf{X}\mathbf{w}=\mathbf{X}^{\top}\mathbf{y}\;\;\;\Longrightarrow\;\;\;\boxed{\mathbf{w}^*=\left(\mathbf{X}^{\top}\mathbf{X}\right)^{-1}\mathbf{X}^{\top}\mathbf{y}}$$
+
+<p>This gives us a closed form solution for the weights. However, no closed form solution will exist if 
+    $D>N$ (i.e we have more features than data points), <b>or</b> when the $\mathbf{X}^{\top}\mathbf{X}$
+    matrix is not invertible. This will occur if a zero eigenvalue exists, that is, if the features are completely 
+    correlated, or more generally, if the features/columns are not linearly independent. 
+</p>
+
+<p>Next, for the same toy data problem that we coded above, we plot the cost as a function of model parameters (weights), and show the correspondence between the different weights having different costs and their fit. 
+The  <code>plot_contour</code> is a helper function we use for plotting the cost function moving forward. This gives a contour plot of <code>f</code> as a functions of two parameters that range between. </p>
+
+            <div class="code-cell">
+  <pre><code class="language-python">
+import itertools
+def plot_contour(f, x1bound, x2bound, resolution, ax):
+    #function to plot the contours where f is the cost function
+    x1range = np.linspace(x1bound[0], x1bound[1], resolution)
+    x2range = np.linspace(x2bound[0], x2bound[1], resolution)
+    xg, yg = np.meshgrid(x1range, x2range)
+    zg = np.zeros_like(xg)
+    for i,j in itertools.product(range(resolution), range(resolution)):
+        zg[i,j] = f([xg[i,j], yg[i,j]])
+    ax.contour(xg, yg, zg, 100)
+    return ax
+  </code></pre>
+</div>
+
+
+<p>Now let's define the cost function for linear regression example above, and visualize the cost and the fit of various models (parameters).</p>
+
+            <div class="code-cell">
+  <pre><code class="language-python">
+cost = lambda w: .5*np.mean((w[0] + w[1]*x - y)**2)         #function to compute the cost
+model_list = [(1,0), (0,-2), (3,-3), (4,-4), (0,1)]              #different weights of the model you want to consider
+fig, axes = plt.subplots(ncols=2, nrows=1, constrained_layout=True, figsize=(10, 5))
+plot_contour(cost, [-20,20], [-5,5], 50, axes[0])           
+colors = ['r','g', 'b', 'k','y']
+for i, w in enumerate(model_list):
+    axes[0].plot(w[0], w[1], 'x'+colors[i])                 #plot the contours
+    axes[1].plot(x, y, '.')                                 #plot the points
+    axes[1].plot(x, w[0]+w[1]*x, '-'+colors[i], alpha=.5)   #plot the lines
+axes[0].set_xlabel(r'$w_0$')
+axes[0].set_ylabel(r'$w_1$')
+axes[0].set_title('weight space')
+axes[1].set_xlabel('x')
+axes[1].set_ylabel(r'$y=xw_1 + w_0$')
+axes[1].set_title('data space')
+plt.show()
+  </code></pre>
+</div>
+
+<img src="Pics/Ellipse.png" alt="Ellipse" class="centered-image">
+
+<p>From the elliptical level curve graph, we take weight points in the neighbourhood of the global minimum of 
+    our loss function, and use them as parameters for our regression line. As we can see, the weight parameters 
+    that correspond to the global minimum of the loss function (the blue point in the center of the innermost ellipse),
+    does indeed fit the data the best. 
+</p>
+
+
+
+
+
+
+<p>What is the time complexity to compute these weights? Well, if we write out the dimensions of each element in the expression:</p>
+
+$$\mathbf{w}^*=\underbrace{\left(\mathbf{X}^{\top}\mathbf{X}\right)^{-1}}_{D\times D}\;\;\underbrace{\mathbf{X}^{\top}}_{D\times N}\;\;\underbrace{\mathbf{y}}_{N\times 1}$$
+
+<p>Starting with $\mathbf{X}^{\top}\mathbf{y}$, this will return a vector with $D$ elements, and for each 
+    entry, we perform $N$ operations, so the running time is $\mathcal{O}(ND)$. For computing $\mathbf{X}^{\top}\mathbf{X}$,
+    we will return a $D\times D$ matrix, with each entry we do $N$ operations, so the running time is $\mathcal{O}(D^2N)$. And finally,
+    taking the inverse of a matrix, in general, will take $\mathcal{O}(D^3)$ time. So in total we have $\mathcal{O}(ND^2+D^3)$, which becomes
+    $\mathcal{O}(ND^2)$ for $N>D$. However, even if it is theoretically possible to compute the pseudo-inverse by inverting $\mathbf{X}^{\top}\mathbf{X}$, we
+should not do so for numerical reasons, since $\mathbf{X}^{\top}\mathbf{X}$ may be ill conditioned or singular.
+</p>
+
+<p>
+    How about the case where we might have multiple targets? Well, it will just be a simple generalization of what we have seen: instead 
+    of $y\in \mathbb{R}^N$, we have $\mathbf{Y}\in \mathbb{R}^{N\times D'}$, that is, our target values are now a matrix,
+    and we have a designated column vector of the weights for each column of our targets. Explicitly, this will be written out as:
+</p>
+\begin{align*}\underbrace{\hat{\mathbf{Y}}}_{N\times D'} =\underbrace{\mathbf{X}}_{N\times D}\;\;\underbrace{\mathbf{W}}_{D\times D'}
+=\begin{bmatrix}\hat{y}_1^{(1)} & \hat{y}_2^{(1)} \\ \hat{y}_1^{(2)} & \hat{y}_2^{(2)} \\ \vdots & \vdots \\ \hat{y}_1^{(N)} & \hat{y}_2^{(N)} \end{bmatrix}& =\begin{bmatrix} 1 & \hat{x}_1^{(1)} & \hat{x}_2^{(1)} & \cdots & \hat{x}_D^{(1)} \\ 
+1 & \vdots & \vdots & \ddots & \vdots \\ 1 & \hat{x}_1^{(N)} & \hat{x}_2^{(N)} & \cdots & \hat{x}_D^{(N)} \end{bmatrix}
+\begin{bmatrix} w_{0,1} & w_{0,2} \\ w_{1,1} & w_{1,2} \\ w_{2,1} & w_{2,2}  \\ \vdots & \vdots \\ w_{D,1} & w_{D,2}\end{bmatrix}
+\end{align*}
+
+<p>So really, each weight vector has its own linear regression associated to it, i.e:</p>
+
+\begin{align*}\begin{cases} \hat{y}_1^{(1)} = w_{0,1}+x_1^{(1)}w_{1,1}+x_2^{(1)} w_{2,1}+\cdots+x_{D}^{(1)}w_{D,1}
+\\ \hat{y}_2^{(1)} = w_{0,2}+x_1^{(1)}w_{1,2}+x_2^{(1)} w_{2,2}+\cdots+x_{D}^{(1)}w_{D,2}
+\\ \;\;\;\;\;\;\;\vdots \\  \hat{y}_1^{(N)} = w_{0,1}+x_1^{(N)}w_{1,1}+x_2^{(N)} w_{2,1}+\cdots+x_{D}^{(N)}w_{D,1}
+\\ \hat{y}_2^{(N)} = w_{0,2}+x_1^{(N)}w_{1,2}+x_2^{(N)} w_{2,2}+\cdots+x_{D}^{(N)}w_{D,2}
+ \end{cases}\end{align*}
+
+ <p>And as we generalize, we note that the weights are given by the same formula above, but in matrix form:</p>
+
+ $$\mathbf{W}^*=\underbrace{\left(\mathbf{X}^{\top}\mathbf{X}\right)^{-1}}_{D\times D}\;\;\underbrace{\mathbf{X}^{\top}}_{D\times N}\;\;\underbrace{\mathbf{Y}}_{N\times D'}$$
+
+ <h2>Fitting Non-Linear Data</h2>
+ <p>Linear Regression seems fine and all, but how are we meant to fit data that is non-linear? Well, the idea 
+    is to generate new features that depend in a non-linear way on the previous features. This is the same idea 
+    we used for linear regression - we define new features that depend only linearly on our previous features, say $x_1$,
+    for example. But now, we can adjust these features so they have a non-linear dependence, say $x_1^2$ for instance,
+    for which we can in principle fit to our non-linear data. 
+ </p>
+
+ <p>Let us try some fitting with some toy data below. It is obvious that our attempt to model $y$ as a linear function of $x$ would produce a bad fit.
+Let's try!</p>
+
+
+            <div class="code-cell">
+  <pre><code class="language-python">
+N = 100
+x = np.linspace(0,10, N)
+yt = np.sin(x) + np.cos(x**.5)                        
+y = yt + .5*np.random.randn(N)                      #generate y using a non linear model and add noise
+yh = model.fit(x,y).predict(x)
+plt.plot(x, y, '.')
+plt.plot(x, yt, 'b-', label='correct model')
+plt.plot(x, yh, 'g-', alpha=.5, label='linear fit')
+plt.xlabel('x')
+plt.ylabel(r'y')
+plt.legend()
+plt.show()
+  </code></pre>
+</div>
+
+<img src="Pics/Toy2.png" alt="Toy2" class="centered-image">
+
+
+
+
+
+ <p>We're going to define these new features by these basis functions $\phi_d(x)\;\forall\;d$ (that are probably 
+    non-linear). We call these basis functions, because the form of our linear regression mapping is the same, but 
+with respect to these basis functions, i.e: </p>
+
+$$f_w=\sum_d w_d\phi_d(x)$$
+
+And our solution, very alike to our linear regression case, becomes:
+
+$$\left(\Phi^{\top}\Phi\right)\mathbf{w}=\Phi^{\top}\mathbf{y}$$
+
+<p>Where:</p>
+
+$$\Phi=\begin{bmatrix} \phi_1\left(x^{(1)}\right) & \phi_2\left(x^{(1)}\right) & \cdots & \phi_D\left(x^{(1)}\right) \\
+\phi_1\left(x^{(2)}\right) & \phi_2\left(x^{(2)}\right) & \cdots & \phi_D\left(x^{(2)}\right)
+\\ \vdots & \vdots & \ddots & \vdots \\ \phi_1\left(x^{(N)}\right) & \phi_2\left(x^{(N)}\right)  & \cdots & \phi_D\left(x^{(N)}\right)\end{bmatrix}$$
+
+<p>Where each row of this matrix corresponds to one instance or data point, and each column refers to 
+    a nonlinear feature. Below are some common examples of basis functions:
+</p>
+
+<img src="Pics/Basis.png" alt="Basis" class="centered-image">
+
+<p>Right now in our attempt to code a fit to our toy data, we only have a single feature <code>x</code> and we have a poor fit.
+We can create new features out of existing ones. In this case, we create features that are Gaussian-like functions of <code>x</code>, where each feature has a different mean. 
+Note that there are many other features that you can build to better fit this data. Below, we build ten such features with 10 different mean values.
+By doing this our new design matrix (called <code>phi</code> below) had 10 features (+1 intercept that is added in the  <code>LinearRegression</code> class).
+Below, let's plot these non-linear bases.</p>
+
+            <div class="code-cell">
+  <pre><code class="language-python">
+D=10
+gaussian = lambda x,mu,sigma: np.exp(-((x-mu)/sigma)**2)          #non-linear feature function
+mu = np.linspace(0,10,D)                                          #different mean values for the non-linear features
+phi = gaussian(x[:,None], mu[None,:],1)                           #gives a new set of features of the existing data
+for d in range(D):
+    plt.plot(x, phi[:,d], '-')
+plt.xlabel('x')
+plt.title('Gaussian bases')
+plt.show()
+  </code></pre>
+</div>
+
+<img src="Pics/GBasis.png" alt="GBasis" class="centered-image">
+
+<p>Now we predict <code>t</code> using <code>phi</code> as input features rather than <code>x</code>:</p>
+
+
+            <div class="code-cell">
+  <pre><code class="language-python">
+yh = model.fit(phi,y).predict(phi)
+fig, ax = plt.subplots()
+plt.plot(x, y, '.')
+plt.plot(x, yt, 'b-', label='ground truth')
+plt.plot(x, yh, 'g-', label='our fit')
+for d in range(D):
+    plt.plot(x, model.w[d]*phi[:,d], '-', alpha=.5)
+plt.plot(x, model.w[-1]*np.ones_like(y), label='intercept')
+plt.legend()
+plt.xlabel('x')
+plt.title('curve-fitting using nonlinear Gaussian bases')
+plt.show()
+  </code></pre>
+</div>
+
+<img src="Pics/GausFit.png" alt="GausFit" class="centered-image">
+
+<p>Since our fit is a linear combination of these bases, you can see that by summing these weighted bases and the intercept, we recover our fit (green curve). Note that here we could plot all features and our prediction for $D=10$ only because all of features are functions of $x$. In general, when we have $D$ features, we need to use a $D+1$ dimensional plot (+1 is for the label $y$). </p>
+
+<p>We can simply replace the bases above with sigmoid bases and fit the data again.</p>
+
+            <div class="code-cell">
+  <pre><code class="language-python">
+D=5
+sigmoid = lambda x,mu, s: 1/(1 + np.exp(-(x - mu)/s))
+mu = np.linspace(0,10,D)
+phi = sigmoid(x[:,None], mu[None,:], .5)
+for d in range(D):
+    plt.plot(x, phi[:,d], '-')
+plt.xlabel('x')
+plt.title('Sigmoid bases')
+plt.show()
+  </code></pre>
+</div>
+
+<img src="Pics/Sig.png" alt="Sig" class="centered-image">
+
+            <div class="code-cell">
+  <pre><code class="language-python">
+yh = model.fit(phi,y).predict(phi)
+fig, ax = plt.subplots()
+plt.plot(x, y, '.')
+plt.plot(x, yt, 'b-', label='ground truth')
+plt.plot(x, yh, 'g-', label='our fit')
+#for d in range(D):
+#    plt.plot(x, model.w[d]*phi[:,d], '-', alpha=.5)
+#plt.plot(x, model.w[-1]*np.ones_like(y), label='intercept')
+plt.legend()
+plt.xlabel('x')
+plt.title('curve-fitting using nonlinear Sigmoid bases')
+plt.show()
+  </code></pre>
+</div>
+
+<img src="Pics/SigFit.png" alt="SigFit" class="centered-image">
+
+
+
+<p>We can also define a probabilistic interpretation for linear regression, in that, we can develop a model
+    that determines the probability of observing certain data. We can define a conditional probability distribution 
+    below that follows a normal distribution that gives the probability of observing the label or target $y$ given 
+    $x$:
+</p>
+
+$$p_w(y|\mathbf{x})=\mathcal{N}(y|\mathbf{w}^{\top} \mathbf{x},\sigma^2)=\frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{\left(y-\mathbf{w}^{\top}\mathbf{x}\right)^2}{2\sigma^2}}$$
+
+<p>This gives a Gaussian distribution for every data point $\mathbf{x}$, with a mean that is linearly proportional 
+    to the weights $\mathbf{w}$. This in essence describes the uncertainty around our regression line and gives a 
+    probability distribution for every data point and is known as <b>Gaussian noise</b>.
+</p>
+
+<img src="Pics/GN.png" alt="GN" class="centered-image">
+
+<p>The natural question is how can we fit such a model? Well, we use the same parameter techniques we learned 
+    last lecture - in particular maximum likelihood estimation. First, we define our likelihood function as the product
+    of the probability of all the observations:
+</p>
+
+$$L(\mathbf{w})=\prod_{n=1}^N p\left(y^{(n)}|x^{(n)};\mathbf{w}\right)$$
+
+<p>Taking the log of this likelihood function:</p>
+
+$$\ell(\mathbf{w})=\sum_n -\frac{1}{2\sigma^2}\left(y^{(n)}-\mathbf{w}^{\top}x^{(n)}\right)^2+\text{constanst}$$
+
+<p>And all that's left to find is:</p>
+
+$$\mathbf{w}^*=\arg\max_{\mathbf{w}}\ell(\mathbf{w})=\arg\min_{\mathbf{w}}\frac 12 \sum_n \left(y^{(n)}-\mathbf{w}^{\top}x^{(n)}\right)^2$$
+
+<p>And wow, this is the exactly the same as minimizing the cost/loss function we did in the method of 
+    linear least squares. 
+</p>
+
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Active link handling:
+    // 1) Highlight the link that points to the current page (by pathname)
+    // 2) When scrolling within this page, update the active link to the visible section
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+
+    // Highlight by current page
+    links.forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.href);
+      if (url.pathname === location.pathname) a.classList.add('active');
+    });
+
+    // If there are in-page sections, also track by intersection
+    const sectionAnchors = links
+      .map(a => {
+        const url = new URL(a.getAttribute('href'), location.href);
+        return url.pathname === location.pathname && url.hash
+          ? document.querySelector(url.hash)
+          : null;
+      })
+      .filter(Boolean);
+
+    if (sectionAnchors.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const id = '#' + entry.target.id;
+          links.forEach(l => {
+            const url = new URL(l.getAttribute('href'), location.href);
+            if (url.pathname === location.pathname && url.hash === id) {
+              l.classList.toggle('active', entry.isIntersecting);
+            }
+          });
+        });
+      }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+      sectionAnchors.forEach(sec => observer.observe(sec));
+    }
+  </script>
+</body>
+</html>
