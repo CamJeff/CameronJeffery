@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COMP 551 — Applied Machine Learning</title>
+  <link rel="stylesheet" href="../COMP_551_Notes/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a; /* slate-900 */
+      --muted: #475569; /* slate-600 */
+      --border: #e2e8f0; /* slate-200 */
+      --accent: #0ea5e9; /* sky-500 */
+      --accent-weak: #e0f2fe; /* sky-100 */
+      --sidebar-bg: #f8fafc; /* slate-50 */
+    }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Layout */
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+      grid-template-areas:
+        "header header"
+        "sidebar main";
+    }
+
+    header {
+      grid-area: header;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px; /* left brand / centered title / right spacer */
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .brand a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    /* Sidebar */
+    nav.sidebar {
+      grid-area: sidebar;
+      border-right: 1px solid var(--border);
+      background: var(--sidebar-bg);
+      padding: 20px 16px;
+      position: sticky;
+      top: 60px; /* approximate header height */
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin: 8px 10px 12px;
+    }
+
+    .nav-list { list-style: none; margin: 0; padding: 0; }
+
+    .nav-item a {
+      display: block;
+      padding: 10px 12px;
+      margin: 6px 4px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid transparent;
+      transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+      font-weight: 500;
+    }
+
+    .nav-item a:hover {
+      background: var(--accent-weak);
+      border-color: var(--accent);
+    }
+
+    .nav-item a.active {
+      background: var(--accent-weak);
+      border-color: var(--accent);
+    }
+
+    /* Main */
+    main {
+      grid-area: main;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+      max-width: 1000px;
+    }
+
+    main h1, main h2, main h3 {
+      line-height: 1.25;
+    }
+
+    .section {
+      scroll-margin-top: 90px; /* prevents content being hidden behind sticky header */
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    pre { background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 12px; overflow: auto; }
+
+    /* Mobile adjustments */
+    .sidebar-toggle {
+      display: none;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 960px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "main";
+      }
+      .header-inner { grid-template-columns: 1fr auto 1fr; }
+      nav.sidebar {
+        position: fixed;
+        inset: 64px 0 auto 0; /* below header */
+        height: auto;
+        max-height: 60vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        display: none; /* toggled by JS */
+        z-index: 30;
+      }
+      .sidebar-toggle { display: inline-block; }
+    }
+
+    /* Utility */
+    .muted { color: var(--muted); }
+    .kicker {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .spacer { height: 12px; }
+  </style>
+  <!-- MathJax for LaTeX equation rendering -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <!-- Changed: brand now shows your name and links back to homepage -->
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Fiddler on the Proof Problems</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+      <h2>Problems</h2>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html">Homepage</a></li>
+        <li class="nav-item"><a href="Oct10.html"><b>October 10:</b> Let’s Make a Tic-Tac-Deal!</a></li>
+        <li class="nav-item"><a href="Sept19.html"><b>September 19:</b> Can Your Team Self-Organize?</a></li>
+        <li class="nav-item"><a href="Sept5.html"><b>September 5 :</b> How Low (or High) Can You Go?</a></li>
+        <li class="nav-item"><a href="Aug22.html"><b>August 22:</b> How Far Can You Run Before Sundown?</a></li>
+        <li class="nav-item"><a href="Aug15.html"><b>August 15:</b> How Much Free Money Can You Win?</a></li>
+        <li class="nav-item"><a href="July25.html"><b>July 25:</b> Can You Sprint to the Finish?</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <section id="lecture-1" class="section">
+        <!-- <div class="kicker">Lecture 1</div> -->
+        <h1><a href="https://thefiddler.substack.com/" target="_blank" rel="noopener">Fiddler on the Proof</a></h1>
+        <div class="spacer"></div>
+        <div class="card">
+            <p>Fiddler on the Proof is blog that offers a math puzzle every Friday, and you 
+                are given the weekend to solve it. They offer a nice little challenge, and if you are a paid 
+                subscriber, you get your name and the number of points you acrue on a leaderboard.
+            </p>
+
+            <p>The problems seem to be exlusively related to probability or combinatorics, and typically all that is  
+                needed is some fundamental knowledge in an 'intro to probabiliy' class to solve all of their questions 
+                (perhaps not their extra credit, however). Generally, problems are related to discrete probability, 
+                expectation, stochastic processes, and even hints of game theory. 
+            </p>
+
+            <p>I've been solving the newly released problems quite consistently ever since July 25, 2025 
+                (although sometimes I skip if I don't connect with the problem). I also don't bother with the 
+                extra credits usually, since I can't see the solutions they provide the following week (I'm not a paid subscriber).
+            </p>
+
+            <p>Attached are my solutions to a selected subset of problems. I haven't included 
+             problems where the solutions are kinda trivial (as in they are only a few lines long).
+            </p>
+
+</code></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar active link handling + mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', toggleSidebar);
+    }
+
+    // Highlight active nav item on scroll
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+    const sections = links
+      .map(a => document.querySelector(a.getAttribute('href')))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const id = '#' + entry.target.id;
+        const link = links.find(a => a.getAttribute('href') === id);
+        if (link) {
+          if (entry.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+          }
+        }
+      });
+    }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+    sections.forEach(sec => observer.observe(sec));
+  </script>
+</body>
+</html>

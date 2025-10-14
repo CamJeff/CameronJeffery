@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COMP 551 — Applied Machine Learning (Lecture 2)</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="../COMP_551_Notes/css/style.css">
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Fiddler on the Proof Problems</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+      <h2>Problems</h2>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html">Homepage</a></li>
+        <li class="nav-item"><a href="Oct10.html"><b>October 10:</b> Let’s Make a Tic-Tac-Deal!</a></li>
+        <li class="nav-item"><a href="Sept19.html"><b>September 19:</b> Can Your Team Self-Organize?</a></li>
+        <li class="nav-item"><a href="Sept5.html"><b>September 5 :</b> How Low (or High) Can You Go?</a></li>
+        <li class="nav-item"><a href="Aug22.html"><b>August 22:</b> How Far Can You Run Before Sundown?</a></li>
+        <li class="nav-item"><a href="Aug15.html"><b>August 15:</b> How Much Free Money Can You Win?</a></li>
+        <li class="nav-item"><a href="July25.html"><b>July 25:</b> Can You Sprint to the Finish?</a></li>
+      </ul>
+    </nav>
+    
+    <main>
+      <!-- Minimal skeleton for Lecture 2 content; ready to fill later -->
+      <section id="lecture-2" class="section">
+        <h1><a href="https://thefiddler.substack.com/p/lets-make-a-tic-tac-deal" target="_blank" rel="noopener">October 10: Let’s Make a Tic-Tac-Deal!</a></h1>
+        <div class="spacer"></div>
+        <div class="card">
+         <h2>Puzzle</h2>
+
+            <p>The game of Tic-Tac-Deal 2.0 has a 3-by-3 square grid with the numbers 3 through 11, arranged as follows:</p>
+
+            \begin{align*}
+    3\;\;\;\;4\;\;\;\;5\;
+    \\ 6\;\;\;\;7\;\;\;\;8\;
+    \\ 9\;\;\;10\;\;\;11
+\end{align*}
+
+        <p>You start by rolling a standard pair of six-sided dice and add the two numbers rolled. You place an X on the board on the square that contains the sum. If the sum is a $2$ or $12$, or if you roll a sum that you have previously rolled, then your roll is wasted.</p>
+
+        <p>If you have exactly three rolls of the dice, what are your chances of getting three Xs in a row (either horizontally, vertically, or diagonally)?</p>
+
+          <hr class="card-divider">
+
+            <h2>Solution</h2>
+
+            <p>Let's look at the probability of rolling each summed numbers from the two dice:</p>
+
+            <img src="Pics/YesTable.png" alt="Tree" class="centered-image">
+
+            <p>Looking at the grid, we see that the only ways to win within three rolls is to roll one of the following triplets of numbers (in any order), and their probabilities are shown:</p>
+
+            \begin{align*}
+ \text{Horizontal Win}=\begin{cases}
+   (3,4,5): &   3!\frac{2\cdot 3\cdot4}{36^3}=3!\frac{24}{36^3}
+   \\ (6,7,8): & 3!\frac{5\cdot 6\cdot5}{36^3}=3!\frac{150}{36^3}
+   \\ (9,10,11): & 3!\frac{4\cdot 3\cdot2}{36^3}=3!\frac{24}{36^3}
+ \end{cases}   & & \text{Vertical Win}=\begin{cases}
+   (3,6,9): &   3!\frac{2\cdot 5\cdot4}{36^3}=3!\frac{40}{36^3}
+   \\ (4,7,10): & 3!\frac{3\cdot 6\cdot3}{36^3}=3!\frac{54}{36^3}
+   \\ (5,8,11): & 3!\frac{4\cdot 5\cdot2}{36^3}=3!\frac{40}{36^3}
+ \end{cases}
+\end{align*}
+$$\text{Diagonal Win}=\begin{cases}
+   (3,7,11): &   3!\frac{2\cdot 6\cdot2}{36^3}=3!\frac{24}{36^3}
+   \\ (5,7,9): & 3!\frac{4\cdot 6\cdot4}{36^3}=3!\frac{96}{36^3}
+ \end{cases}$$
+
+            <p>And the so the probability of winning in three rolls is just:</p>
+
+                $$\mathbb{P}(\text{Win})=3!\frac{24+150+24+40+54+40+24+96}{36^3}=\boxed{\frac{113}{1944}}$$
+
+
+     
+
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Active link handling:
+    // 1) Highlight the link that points to the current page (by pathname)
+    // 2) When scrolling within this page, update the active link to the visible section
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+
+    // Highlight by current page
+    links.forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.href);
+      if (url.pathname === location.pathname) a.classList.add('active');
+    });
+
+    // If there are in-page sections, also track by intersection
+    const sectionAnchors = links
+      .map(a => {
+        const url = new URL(a.getAttribute('href'), location.href);
+        return url.pathname === location.pathname && url.hash
+          ? document.querySelector(url.hash)
+          : null;
+      })
+      .filter(Boolean);
+
+    if (sectionAnchors.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const id = '#' + entry.target.id;
+          links.forEach(l => {
+            const url = new URL(l.getAttribute('href'), location.href);
+            if (url.pathname === location.pathname && url.hash === id) {
+              l.classList.toggle('active', entry.isIntersecting);
+            }
+          });
+        });
+      }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+      sectionAnchors.forEach(sec => observer.observe(sec));
+    }
+  </script>
+</body>
+</html>

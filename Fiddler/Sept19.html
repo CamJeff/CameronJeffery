@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COMP 551 — Applied Machine Learning (Lecture 2)</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="../COMP_551_Notes/css/style.css">
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Fiddler on the Proof Problems</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+      <h2>Problems</h2>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html">Homepage</a></li>
+        <li class="nav-item"><a href="Oct10.html"><b>October 10:</b> Let’s Make a Tic-Tac-Deal!</a></li>
+        <li class="nav-item"><a href="Sept19.html"><b>September 19:</b> Can Your Team Self-Organize?</a></li>
+        <li class="nav-item"><a href="Sept5.html"><b>September 5 :</b> How Low (or High) Can You Go?</a></li>
+        <li class="nav-item"><a href="Aug22.html"><b>August 22:</b> How Far Can You Run Before Sundown?</a></li>
+        <li class="nav-item"><a href="Aug15.html"><b>August 15:</b> How Much Free Money Can You Win?</a></li>
+        <li class="nav-item"><a href="July25.html"><b>July 25:</b> Can You Sprint to the Finish?</a></li>
+      </ul>
+    </nav>
+    
+    <main>
+      <!-- Minimal skeleton for Lecture 2 content; ready to fill later -->
+      <section id="lecture-2" class="section">
+        <h1><a href="https://thefiddler.substack.com/p/can-your-team-self-organize" target="_blank" rel="noopener">September 19: Can Your Team Self-Organize?</a></h1>
+        <div class="spacer"></div>
+        <div class="card">
+         <h2>Puzzle</h2>
+
+            <p>In a recent team building exercise at work, a group of people (including myself) was asked to quantify themselves in various ways. For example: "What outdoor temperature do you prefer?"" No one reveals their answer at first. Instead, each person places a card with their name on an unmarked line, one at a time. In this example, folks who prefer higher temperatures would place their names farther right; folks who prefer lower temperatures would place their names farther left. However, the line is unmarked and doesn’t have any units.</p>
+
+            <p>Once all the names are placed on the line, their values are revealed. For example, a group of six might have generated the following numbers, in order from left to right on the line: $60$, $67$, $65$, $74$, $70$, $80$.</p>
+
+            <p>The team’s score is the length of the "longest increasing subsequence."" In other words, it’s the maximum number of elements in the list you can keep such that they form an increasing subsequence. In the example above, you can remove the $67$ and the $74$ to get the following increasing subsequence with four numbers: $60$, $65$, $70$, $80$. There are a few other ways to get an increasing subsequence of length four, but there’s no way to get a sequence of length five or more, so the team’s score is four.</p>
+
+            <p>Suppose a total of four people are participating in this team building exercise. They all write down different numbers, and then independently place their names at random positions on the line.</p>
+
+            <p>On average, what do you expect the team’s score to be?</p>
+
+          <hr class="card-divider">
+
+            <h2>Solution</h2>
+
+            <p>To simplify, let's suppose that each of the four group members are assigned numbers $1,2,3,$ and $4$, and they place their numbers randomly and independently on the number line. There are $4!=24$ total ways they can do this. </p>
+
+            <p>Of course, there is only one way for the team to get a score of four, and that's if the sequence is $1234$. Similarly, there's only one way for the team to get a score of $1$, which is the sequence $4321$. </p>
+
+            <p>There might be a clever way to determine the number of ways to achieve a score of $3$, but I'm just going to list them all out:</p>
+
+            \begin{align*}
+    1243 \rightarrow (1,2,4) & & 1324 \rightarrow  (1,2,4)\;\text{or}\; (1,3,4) & & 1342 \rightarrow (1,3,4)
+    \\ 1423 \rightarrow (1,2,3) & & 2134 \rightarrow (1,3,4)\;\text{or}\;(2,3,4) & & 2314 \rightarrow  (2,3,4)
+    \\ 2341 \rightarrow (2,3,4) & & 3124 \rightarrow (1,2,4)\;\;\;\;\;\; & & 4123 \rightarrow (1,2,3)
+\end{align*}
+
+                <p>So there are $9$ ways of obtaining a score of $3$. This means that there are $24-1-1-9=13$ ways of obtaining a score of $2$.</p>
+
+                <p>And so, our expected score is:</p>
+
+                $$\mathbb{E}[\text{Score}]=\frac{1(1)+2(13)+3(9)+4(1)}{24}=\boxed{2.42}$$
+
+
+     
+
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Active link handling:
+    // 1) Highlight the link that points to the current page (by pathname)
+    // 2) When scrolling within this page, update the active link to the visible section
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+
+    // Highlight by current page
+    links.forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.href);
+      if (url.pathname === location.pathname) a.classList.add('active');
+    });
+
+    // If there are in-page sections, also track by intersection
+    const sectionAnchors = links
+      .map(a => {
+        const url = new URL(a.getAttribute('href'), location.href);
+        return url.pathname === location.pathname && url.hash
+          ? document.querySelector(url.hash)
+          : null;
+      })
+      .filter(Boolean);
+
+    if (sectionAnchors.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const id = '#' + entry.target.id;
+          links.forEach(l => {
+            const url = new URL(l.getAttribute('href'), location.href);
+            if (url.pathname === location.pathname && url.hash === id) {
+              l.classList.toggle('active', entry.isIntersecting);
+            }
+          });
+        });
+      }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+      sectionAnchors.forEach(sec => observer.observe(sec));
+    }
+  </script>
+</body>
+</html>

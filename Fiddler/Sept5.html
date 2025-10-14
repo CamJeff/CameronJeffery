@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COMP 551 — Applied Machine Learning (Lecture 2)</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="../COMP_551_Notes/css/style.css">
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Fiddler on the Proof Problems</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+      <h2>Problems</h2>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html">Homepage</a></li>
+        <li class="nav-item"><a href="Oct10.html"><b>October 10:</b> Let’s Make a Tic-Tac-Deal!</a></li>
+        <li class="nav-item"><a href="Sept19.html"><b>September 19:</b> Can Your Team Self-Organize?</a></li>
+        <li class="nav-item"><a href="Sept5.html"><b>September 5 :</b> How Low (or High) Can You Go?</a></li>
+        <li class="nav-item"><a href="Aug22.html"><b>August 22:</b> How Far Can You Run Before Sundown?</a></li>
+        <li class="nav-item"><a href="Aug15.html"><b>August 15:</b> How Much Free Money Can You Win?</a></li>
+        <li class="nav-item"><a href="July25.html"><b>July 25:</b> Can You Sprint to the Finish?</a></li>
+      </ul>
+    </nav>
+    
+    <main>
+      <!-- Minimal skeleton for Lecture 2 content; ready to fill later -->
+      <section id="lecture-2" class="section">
+        <h1><a href="https://thefiddler.substack.com/p/how-low-or-high-can-you-go" target="_blank" rel="noopener">September 5: How Low (or High) Can You Go?</a></h1>
+        <div class="spacer"></div>
+        <div class="card">
+         <h2>Puzzle</h2>
+
+        <p>You’re playing a game of “high-low,” which proceeds as follows:</p>
+
+        <ul>
+            <li>First, you are presented with a random number, $x_1$, which is between $0$ and $1$.</li>
+            <li>A new number, $x_2$, is about to be randomly selected between $0$ and $1$, independent of the first number. But before it’s selected, you must guess how $x_2$ will compare to $x_1$. If you think $x_2$ will be greater than $x_1$ you guess “high.” If you think $x_2$ will be less than $x_1$, you guess “low.” If you guess correctly, you earn a point and advance to the next round. Otherwise, the game is over.</li>
+            <li>If you correctly guessed how $x_2$ compared to $x_1$ then another random number, $x_3$, will be selected between $0$ and $1$. This time, you must compare $x_3$ to $x_2$, guessing whether it will be “high” or “low.” If you guess correctly, you earn a point and advance to the next round. Otherwise, the game is over.</li>
+        </ul>
+
+        <p>You continue playing as many rounds as you can, as long as you keep guessing correctly.</p>
+
+        <p>You quickly realize that the best strategy is to guess "high" whenever the previous number is less than $0.5$, and "low" whenever the previous number is greater than $0.5$.</p>
+
+        <p>With this strategy, what is the probability you will earn at least two points? That is, what are your chances of correctly comparing $x_2$ to $x_1$ and then also correctly comparing $x_3$ to $x_2$?</p>
+
+          <hr class="card-divider">
+
+            <h2>Solution</h2>
+
+            <p>Let $X_1,X_2,X_3\stackrel{\text{iid}}{\sim}\text{Unif}(0,1)$ be random variables, and $x_1,x_2,x_3$ be specific values of these random variables. Adopting the strategy posed in the question, we say we pass round 1 when $x_1<\frac 12\cap x_2>x_1$ or $x_1>\frac 12 \cap x_2< x_1$, and similarly we pass round 2 when $x_2< \frac 12\cap x_3>x_2$ or $x_2>\frac 12\cap x_3< x_2$.</p>
+
+            <p>We condition on succeeding in Round 2 by the event that we succeed in Round 1, and we therefore consider four disjoint events demonstrated in the below integral:</p>
+
+
+            $$\mathbb{P}(\text{2 rounds won})=\underbrace{\iint \mathbb{P}(X_3>x_2)}_{\text{R1: High}\;\;\text{R2: High}}+\underbrace{\iint \mathbb{P}(X_3< x_2)}_{\text{R1: High}\;\;\text{R2: Low}}+\underbrace{\iint \mathbb{P}(X_3>x_2)}_{\text{R1: Low}\;\;\text{R2: High}}+\underbrace{\iint \mathbb{P}(X_3< x_2)}_{\text{R1: Low}\;\;\text{R2: Low}}$$
+
+            <p>Where the text in the underbraces indicate what we guess in each round. Now we need to determine the bounds defining each integral:
+</p>
+
+            <ul>
+                <li> <b>R1: High R2: High:</b> We must have $0< x_1< \frac 12$ since we successfully guess high in R1, and $x_1 < x_2 < \frac 12$ since we require $x_2$ be greater than $x_1$. Since we guess high again on the second round, we also want $x_3>x_2$, therefore $x_2$ must be no greater than $\frac 12$. </li>
+                <li> <b>R1: High R2: Low:</b> We must have $0< x_1< \frac12$ or the same reason as in the above case. If we successfully win with a guess of high in round 1, we must have $\frac 12 < x_2< 1$. If we guess low in the second round, we need $x_3< x_2$. </li>
+                <li> <b>R1: Low R2: High :</b> We require $\frac 12 < x_1< 1$ if guess low in round 1. If successful, we would have $0< x_2< \frac 12$, and thus for $x_3>x_2$, we would need to guess high to win again. </li>
+                <li> <b>R1: Low R2: Low:</b> We require $\frac 12 < x_1< 1$ for the same reason as the previous case. If successful after the first round, this would imply $\frac 12< x_2< x_1$. For a guess of low in round 2, we would need $x_3< x_2$. </li>
+            </ul>
+
+
+            <p>Now we need to determine what are $\mathbb{P}(X_3>x_2)$ and $\mathbb{P}(X_3< x_2)$. Since $X_3$ is a uniform random variable:</p>
+
+            \begin{align*}
+    \mathbb{P}(X_3>x_2) & =\int_{x_2}^1 1dx_3=1-x_2
+    \\ \mathbb{P}(X_3< x_2) & = \int_{0}^{x_2}1dx_3=x_2
+\end{align*}
+
+            <p>And so finally we have:</p>
+
+            \begin{align*}
+    \mathbb{P}(\text{2 rounds won}) & = \int_{0}^{\frac 12}\int_{x_1}^{\frac 12}(1-x_2)dx_2dx_1+\int_{0}^{\frac 12}\int_{\frac 12}^0 x_2dx_2dx_1
+    \\ & +\int_{\frac 12}^1\int_{0}^{\frac 12}(1-x_2)dx_2dx_1+\int_{\frac 12}^1\int_{\frac 12}^{x_1}x_2dx_2dx_1
+    \\ & = \frac{1}{12}+\frac{3}{16}+\frac{3}{16}+\frac{1}{12}
+    \\ & = \boxed{\frac{13}{24}}
+\end{align*}
+
+                <p>Which is roughly $\boxed{0.54}$ chance of winning. </p>
+
+     
+
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Active link handling:
+    // 1) Highlight the link that points to the current page (by pathname)
+    // 2) When scrolling within this page, update the active link to the visible section
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+
+    // Highlight by current page
+    links.forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.href);
+      if (url.pathname === location.pathname) a.classList.add('active');
+    });
+
+    // If there are in-page sections, also track by intersection
+    const sectionAnchors = links
+      .map(a => {
+        const url = new URL(a.getAttribute('href'), location.href);
+        return url.pathname === location.pathname && url.hash
+          ? document.querySelector(url.hash)
+          : null;
+      })
+      .filter(Boolean);
+
+    if (sectionAnchors.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const id = '#' + entry.target.id;
+          links.forEach(l => {
+            const url = new URL(l.getAttribute('href'), location.href);
+            if (url.pathname === location.pathname && url.hash === id) {
+              l.classList.toggle('active', entry.isIntersecting);
+            }
+          });
+        });
+      }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+      sectionAnchors.forEach(sec => observer.observe(sec));
+    }
+  </script>
+</body>
+</html>
