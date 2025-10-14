@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COMP 551 — Applied Machine Learning</title>
+  <link rel="stylesheet" href="../COMP_551_Notes/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a; /* slate-900 */
+      --muted: #475569; /* slate-600 */
+      --border: #e2e8f0; /* slate-200 */
+      --accent: #0ea5e9; /* sky-500 */
+      --accent-weak: #e0f2fe; /* sky-100 */
+      --sidebar-bg: #f8fafc; /* slate-50 */
+    }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Layout */
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+      grid-template-areas:
+        "header header"
+        "sidebar main";
+    }
+
+    header {
+      grid-area: header;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px; /* left brand / centered title / right spacer */
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .brand a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    /* Sidebar */
+    nav.sidebar {
+      grid-area: sidebar;
+      border-right: 1px solid var(--border);
+      background: var(--sidebar-bg);
+      padding: 20px 16px;
+      position: sticky;
+      top: 60px; /* approximate header height */
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin: 8px 10px 12px;
+    }
+
+    .nav-list { list-style: none; margin: 0; padding: 0; }
+
+    .nav-item a {
+      display: block;
+      padding: 10px 12px;
+      margin: 6px 4px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid transparent;
+      transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+      font-weight: 500;
+    }
+
+    .nav-item a:hover {
+      background: var(--accent-weak);
+      border-color: var(--accent);
+    }
+
+    .nav-item a.active {
+      background: var(--accent-weak);
+      border-color: var(--accent);
+    }
+
+    /* Main */
+    main {
+      grid-area: main;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+      max-width: 1000px;
+    }
+
+    main h1, main h2, main h3 {
+      line-height: 1.25;
+    }
+
+    .section {
+      scroll-margin-top: 90px; /* prevents content being hidden behind sticky header */
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    pre { background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 12px; overflow: auto; }
+
+    /* Mobile adjustments */
+    .sidebar-toggle {
+      display: none;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 960px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "main";
+      }
+      .header-inner { grid-template-columns: 1fr auto 1fr; }
+      nav.sidebar {
+        position: fixed;
+        inset: 64px 0 auto 0; /* below header */
+        height: auto;
+        max-height: 60vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        display: none; /* toggled by JS */
+        z-index: 30;
+      }
+      .sidebar-toggle { display: inline-block; }
+    }
+
+    /* Utility */
+    .muted { color: var(--muted); }
+    .kicker {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .spacer { height: 12px; }
+  </style>
+  <!-- MathJax for LaTeX equation rendering -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <!-- Changed: brand now shows your name and links back to homepage -->
+        <div class="brand"><a href="../puzzles/index.html"><strong>Puzzles</strong></a></div>
+        <div class="course-title">Jane Street Puzzles</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+      <h2>Puzzles</h2>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html">Homepage</a></li>
+        <li class="nav-item"><a href="Oct2025.html"><b>October 2025:</b> Robot Baseball</a></li>
+        <li class="nav-item"><a href="Sept2025.html"><b>September 2025:</b> Hooks 11</a></li>
+        <li class="nav-item"><a href="July2025.html"><b>July 2025:</b> Robot Road Trip</a></li>
+        <li class="nav-item"><a href="April2025.html"><b>April 2025:</b> Sum One, Somewhere</a></li>
+        <li class="nav-item"><a href="Nov2024.html"><b>November 2024:</b> Beside the Point</a></li>
+        <li class="nav-item"><a href="Oct2024.html"><b>October 2024:</b> Knight Moves 6</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <section id="lecture-1" class="section">
+        <!-- <div class="kicker">Lecture 1</div> -->
+        <h1><a href="https://www.janestreet.com/puzzles/" target="_blank" rel="noopener">Jane Street Puzzles</a></h1>
+        <div class="spacer"></div>
+        <div class="card">
+            <p>Jane Street is a quantitative trading firm founded in the USA and was introduced to them 
+                through their <a href="https://www.janestreet.com/puzzles/" target="_blank" rel="noopener">Monthly Puzzles</a>.
+                    In fact, for a while, I thought that's all Jane Street was - a website that posts a fun and 
+                    challenging puzzle each month where solvers can competitively grind out and get their name placed 
+                    on a leaderboard. 
+            </p>
+
+            <p>But in fact, Jane Street is so much more; working on tough financial market data problems 
+                while instilling an environment and work culture where these sort of puzzles seem integral 
+                to the type of problem solving they do on the job. 
+            </p>
+
+            <p>Intrigued by this, I've started regularly solving each newly released puzzle they put out since 
+                my first ever solve on <a href="https://www.janestreet.com/puzzles/fences-2-index/" target="_blank" rel="noopener">September 2024's Puzzle.</a>
+                They have been an extremely fun challenge for me, and I'm excited to see each new creative release at the beginning 
+                of each month.
+            </p>
+
+            <p>I try my best to solve every puzzle by hand, though some the puzzles seem to demand a coded solution.
+                These types of puzzles seem to be more tradional "puzzle" type puzzles, where you have to toy and fiddle 
+                with pieces that are meant to fit together is a certain way. These kinds of puzzles seem to have so many 
+                permutations and variables to consider that it seems impossibly daunting to try it out by hand without the help 
+                of some optimal program to solve it for you.
+            </p>
+
+            <p>The puzzle solutions I've added here are for puzzles that either demanded a coded solution, 
+                or are the puzzles that are much more mathematically involved (i.e they are just a straight up math 
+                question). All other puzzles I have solved by hand. 
+            </p>
+
+</code></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar active link handling + mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', toggleSidebar);
+    }
+
+    // Highlight active nav item on scroll
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+    const sections = links
+      .map(a => document.querySelector(a.getAttribute('href')))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const id = '#' + entry.target.id;
+        const link = links.find(a => a.getAttribute('href') === id);
+        if (link) {
+          if (entry.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+          }
+        }
+      });
+    }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+    sections.forEach(sec => observer.observe(sec));
+  </script>
+</body>
+</html>
