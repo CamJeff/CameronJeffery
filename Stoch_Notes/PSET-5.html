@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stochastic Processes</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="../COMP_551_Notes/css/style.css">
+
+  <style>
+/* (a), (b), (c) ... */
+ol.parts {
+  list-style: none;              /* kill browser markers */
+  counter-reset: parts;          /* start counter */
+  margin: 12px 0 16px;
+  padding-left: 0;
+}
+ol.parts > li {
+  counter-increment: parts;
+  position: relative;
+  padding-left: 1.8rem;          /* room for (a) */
+  margin: 6px 0;
+}
+ol.parts > li::before {
+  content: "(" counter(parts, lower-alpha) ") ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 600;
+}
+
+/* (i), (ii), (iii) ... */
+ol.roman {
+  list-style: none;              /* kill browser markers */
+  counter-reset: roman;
+  margin: 8px 0 4px 0;
+  padding-left: 0;
+}
+ol.roman > li {
+  counter-increment: roman;
+  position: relative;
+  padding-left: 1.8rem;          /* room for (i) */
+  margin: 4px 0;
+}
+ol.roman > li::before {
+  content: "(" counter(roman, lower-roman) ") ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 600;
+}
+
+/* Helpful: add a bit of spacing between any ul items if needed */
+ul.spaced li { margin-bottom: 8px; }
+</style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script src="../COMP_551_Notes/js/toggle.js" defer></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../notes/index.html"><strong>Notes</strong></a></div>
+        <div class="course-title">Stochastic Processes</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+   <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-tabs">
+    <button class="tab-button" data-target="lectures-list">Lectures</button>
+    <button class="tab-button active" data-target="psets-list">PSETS/Exams</button>
+  </div>
+
+  <!-- Lectures list -->
+  <ul id="lectures-list" class="nav-list" hidden>
+    <li class="nav-item"><a href="index.html#lecture-1">Lecture 1: Probability Review</a></li>
+    <li class="nav-item"><a href="lecture2.html">Lecture 2: Introduction to Markov Chains</a></li>
+    <li class="nav-item"><a href="lecture3.html">Lecture 3: Stationary and Limiting Distributions</a></li>
+    <li class="nav-item"><a href="lecture4.html">Lecture 4: Periodicity and Regularity</a></li>
+  </ul>
+
+  <!-- PSETs/Exams list (hidden by default) -->
+  <ul id="psets-list" class="nav-list">
+    <li class="nav-item"><a href="PSET-1.html">PSET 1: Probability Review</a></li>
+    <li class="nav-item"><a href="PSET-2.html">PSET 2: Stationary Distributions</a></li>
+    <li class="nav-item"><a href="PSET-3.html">PSET 3: Hitting Times</a></li>
+    <li class="nav-item"><a href="PSET-4.html">PSET 4: Infinite Markov Chains</a></li>
+    <li class="nav-item"><a href="PSET-5.html">PSET 5: Branching Processes</a></li>
+    <li class="nav-item"><a href="PSET-6.html">PSET 6: Poisson Processes</a></li>
+  </ul>
+</nav>
+
+    <main>
+      <section id="lecture-2" class="section">
+        <div class="kicker">Problem Set 5</div>
+        <h1>Branching Processes</h1>
+        <div class="spacer"></div>
+        <div class="card">
+
+          <p><strong>Note:</strong> This is not a real problem set from the class. All of these 
+          questions are ones that I either wrote myself or found online or from textbooks. I made these 
+          to help supplement my learning and get in extra practice. 
+         </p>
+
+            <p>Branching Processes is a special type of Markov chain that is meant to 
+              model population growth or extinction, and whose protypical chains resemble trees. 
+              Not only that, but branching processes can also be used to model certain physical processes 
+              such as nuclear chain reactions. You can access a pdf of the problem set 
+                <a href="PDFs/PSET5.pdf" target="_blank" rel="noopener">Here</a>, 
+            with the pdf of solutions Here.</p>
+
+
+                    <!-- Problem + Solution block -->
+            <section class="section" id="problem-1">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 1: A Royal Family</h2>
+
+    <p>A careful study of the reproductive behavior of a royal family revealed that each member of the family has a probability of
+</p>
+
+	<ul class="tasks two-col">
+  <li><span class="moon" aria-hidden="true"></span> $\frac 13$ of producing no children</li>
+  <li><span class="moon" aria-hidden="true"></span> $\frac 19$ of producing one child</li>
+  <li><span class="moon" aria-hidden="true"></span> $\frac 23$ of producing two children</li>
+  <li><span class="moon" aria-hidden="true"></span> $\frac 29$ of producing three children</li>
+</ul>
+
+<p>Suppose we can model this as the branching process, and we look at the royal family that starts with the king.</p>
+
+    <!-- Use one single list with alphabetic markers -->
+<ol class="parts">
+        <li>Is this a subcritical, critical, or supercritical process?</li>
+        <li>Find the probability generating function (PGF) for the second generation.</li>
+        <li>What is the probability that the king has exactly $2$ grandchildren?</li>
+        <li>What is the probability that the royal family goes extinct in the second generation?</li>
+        <li>What is the probability of eventual extinction of the royal family?</li>
+        <li>After $n$ generations, what is the probability that there is the maximum number of royal blooded individuals?</li>
+    </ol>
+
+
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-1">
+      Show Solution
+    </button>
+
+    <div id="solution-1" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>Under construction</li>
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+
+<p>$\color{white}.\color{black}$</p>
+
+                   <!-- Problem + Solution block -->
+            <section class="section" id="problem-2">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 2: Another Offspring</h2>
+
+    <p>Consider the offspring distribution $X$ defined by for $k\geq 0$:</p>
+
+    $$\mathbb{P}(X=k)=2^{-k-1}$$
+
+    <ol class="parts">
+        <li>Find the extinction probability.</li>
+        <li>Let $G$ be its probability generating function, and let $G_n$ be the composition of $G$ with itself $n$ times. Then, for $n\geq 1$ we have:
+
+        $$G_n(s)=\frac{a_n-b_ns}{c_n-d_ns}$$
+
+        <p>Where $a_n$, $b_n$, $c_n$, and $d_n$ are constants. What are these constants?</p></li>
+      </ol>
+
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-2">
+      Show Solution
+    </button>
+
+    <div id="solution-2" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+   <p>Under construction.</p>
+
+
+    </div>
+  </div>
+</section>
+
+<p>$\color{white}.\color{black}$</p>
+
+
+                   <!-- Problem + Solution block -->
+            <section class="section" id="problem-3">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 3: Raccoon Family</h2>
+
+    <p>A wholesome family of raccoons always have identical quadruplets (four offspring). Each of the 4 little raccoons has a $1/3$ chance of becoming a doctor, a lawyer or a scientist, independently of its 3 siblings. A doctor raccoon will reproduce further with probability $2/3$, a lawyer with probability $1/2$ and a scientist with probability $1/4$, again, independently of everything else. If it reproduces at all, a raccoon reproduces only once in its life, and then leaves the raccoon scene. (For the purposes of this problem assume that raccoons reproduce asexually). Let us call the raccoons who
+have offspring fertile.</p>
+
+    <ol class="parts">
+        <li>What is the distribution of the number of fertile offspring? Write down its generating function.</li>
+        <li>What is the generating function for the number of great-grandchildren a raccoon will have? What is its expectation? </li>
+        <li>Let the raccoon population be modeled by a branching process, and let’s suppose that it starts from exactly one individual at time $0$. Is it certain that the population will go extinct sooner or later? </li>
+      </ol>
+
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-3">
+      Show Solution
+    </button>
+
+    <div id="solution-3" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>Under construction.</li>
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+<p>$\color{white}.\color{black}$</p>
+
+
+                   <!-- Problem + Solution block -->
+            <section class="section" id="problem-4">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 4: All Who Every Lived</h2>
+
+    <p>For a branching process $\left(Z_n:n\geq 0\right)$, denote $S$ as the total number of individuals that ever lived, or rather:</p>
+
+    $$S=\sum_{n=0}^{\infty}Z_n=1+\sum_{n=1}^{\infty}Z_n$$
+
+    <ol class="parts">
+        <li>Assume that the offspring distribution has the generating function given by:
+        $$G(s)=p+qs.$$
+        <p>Find the generating function $G_S$, in this case. </p></li>
+
+        <li>Assume instead the offspring distribution has the generating function given by:
+
+        $$G(s)=\frac{p}{1-qs}.$$
+
+        <p>Find $G_S$, in this case. </p> </li>
+
+        <li>Find the general expression for the expected number of individuals who ever lived in the cases described in parts <b>(a)</b> and <b>(b)</b>.</li>
+      </ol>
+
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-4">
+      Show Solution
+    </button>
+
+    <div id="solution-4" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>Under construction.</li>
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Active link handling:
+    // 1) Highlight the link that points to the current page (by pathname)
+    // 2) When scrolling within this page, update the active link to the visible section
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+
+    // Highlight by current page
+    links.forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.href);
+      if (url.pathname === location.pathname) a.classList.add('active');
+    });
+
+    // If there are in-page sections, also track by intersection
+    const sectionAnchors = links
+      .map(a => {
+        const url = new URL(a.getAttribute('href'), location.href);
+        return url.pathname === location.pathname && url.hash
+          ? document.querySelector(url.hash)
+          : null;
+      })
+      .filter(Boolean);
+
+    if (sectionAnchors.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const id = '#' + entry.target.id;
+          links.forEach(l => {
+            const url = new URL(l.getAttribute('href'), location.href);
+            if (url.pathname === location.pathname && url.hash === id) {
+              l.classList.toggle('active', entry.isIntersecting);
+            }
+          });
+        });
+      }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+      sectionAnchors.forEach(sec => observer.observe(sec));
+    }
+  </script>
+</body>
+</html>

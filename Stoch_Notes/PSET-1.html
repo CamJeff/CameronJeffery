@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COMP 551 — Applied Machine Learning (Lecture 2)</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="../COMP_551_Notes/css/style.css">
+
+  <style>
+/* (a), (b), (c) ... */
+ol.parts {
+  list-style: none;              /* kill browser markers */
+  counter-reset: parts;          /* start counter */
+  margin: 12px 0 16px;
+  padding-left: 0;
+}
+ol.parts > li {
+  counter-increment: parts;
+  position: relative;
+  padding-left: 1.8rem;          /* room for (a) */
+  margin: 6px 0;
+}
+ol.parts > li::before {
+  content: "(" counter(parts, lower-alpha) ") ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 600;
+}
+
+/* (i), (ii), (iii) ... */
+ol.roman {
+  list-style: none;              /* kill browser markers */
+  counter-reset: roman;
+  margin: 8px 0 4px 0;
+  padding-left: 0;
+}
+ol.roman > li {
+  counter-increment: roman;
+  position: relative;
+  padding-left: 1.8rem;          /* room for (i) */
+  margin: 4px 0;
+}
+ol.roman > li::before {
+  content: "(" counter(roman, lower-roman) ") ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 600;
+}
+
+/* Helpful: add a bit of spacing between any ul items if needed */
+ul.spaced li { margin-bottom: 8px; }
+</style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script src="../COMP_551_Notes/js/toggle.js" defer></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../notes/index.html"><strong>Notes</strong></a></div>
+        <div class="course-title">Stochastic Processes</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+   <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-tabs">
+    <button class="tab-button" data-target="lectures-list">Lectures</button>
+    <button class="tab-button active" data-target="psets-list">PSETS/Exams</button>
+  </div>
+
+  <!-- Lectures list -->
+  <ul id="lectures-list" class="nav-list" hidden>
+    <li class="nav-item"><a href="index.html#lecture-1">Lecture 1: Probability Review</a></li>
+    <li class="nav-item"><a href="lecture2.html">Lecture 2: Introduction to Markov Chains</a></li>
+    <li class="nav-item"><a href="lecture3.html">Lecture 3: Stationary and Limiting Distributions</a></li>
+    <li class="nav-item"><a href="lecture4.html">Lecture 4: Periodicity and Regularity</a></li>
+  </ul>
+
+  <!-- PSETs/Exams list (hidden by default) -->
+  <ul id="psets-list" class="nav-list">
+    <li class="nav-item"><a href="PSET-1.html">PSET 1: Probability Review</a></li>
+    <li class="nav-item"><a href="PSET-2.html">PSET 2: Stationary Distributions</a></li>
+    <li class="nav-item"><a href="PSET-3.html">PSET 3: Hitting Times</a></li>
+    <li class="nav-item"><a href="PSET-4.html">PSET 4: Infinite Markov Chains</a></li>
+    <li class="nav-item"><a href="PSET-5.html">PSET 5: Branching Processes</a></li>
+    <li class="nav-item"><a href="PSET-6.html">PSET 6: Poisson Processes</a></li>
+  </ul>
+</nav>
+
+    <main>
+      <section id="lecture-2" class="section">
+        <div class="kicker">Problem Set 1</div>
+        <h1>Probability Review/Markov Chain Basics</h1>
+        <div class="spacer"></div>
+        <div class="card">
+
+          <p><strong>Note:</strong> This is not a real problem set from the class. All of these 
+          questions are ones that I either wrote myself or found online or from textbooks. I made these 
+          to help supplement my learning and get in extra practice. 
+         </p>
+
+            <p> This first problem set is a general overview of some 
+                discrete probability that will be essential when dealing with Markov chains. 
+                Furthermore, this problem set also allows some 
+                practice to gain intuition for how finite-state, discrete time 
+                Markov chains work. You can access a pdf of the problem set 
+                <a href="PDFs/PSET1.pdf" target="_blank" rel="noopener">Here</a>, 
+            with the pdf of solutions Here.</p>
+
+
+                    <!-- Problem + Solution block -->
+            <section class="section" id="problem-1">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 1: Ping Pong Tournament</h2>
+
+    <p>Suppose 2024 World Team Table Tennis Champion is set to be determined with the following procedure. France and Japan are the two leading challengers and they both play in a two-game match. If one of them wins both games, they advance to another two-game <i>second round</i> with China, the reigning champion. China retains their championship unless a second round is required <b>and</b> the challenger beats China in both games. If China wins the initial game of the second round, no more games are played, and China continues their reign of glory. 
+    </p>
+
+    <p>Moreover, suppose that careful analysis of the play-styles of each team results in the following conclusions:</p>
+
+    <ul class="spaced">
+  <li>The probability that France will beat Japan in any given game is $\frac 35$.</li>
+  <li>The probability that China will beat France in any given game is $\frac 12$.</li>
+  <li>The probability that France will beat Japan in any given game is $\frac{7}{10}$.</li>
+</ul>
+
+    <p>Assume that no ties are possible and that all games are independent. </p>
+
+    <!-- Use one single list with alphabetic markers -->
+<ol class="parts">
+  <li>
+    Determine the probabilities that:
+    <ol class="roman">
+      <li>The second round will be required.</li>
+      <li>France will win the first round.</li>
+      <li>China will retain their championship this year.</li>
+    </ol>
+      </li>
+
+    <li>Given that the second round is required, determine the conditional probabilities that:
+
+    <ol class="roman">
+        <li>France is the surviving challenger.</li>
+        <li>China retains their championship this year.</li>
+    </ol>
+    </li>
+
+    <li>Given that the second round was required and it comprised of only one game, what is the conditional probability that it was France that won the first round? </li>
+</ol>
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-1">
+      Show Solution
+    </button>
+
+    <div id="solution-1" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>Under construction</li>
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+
+<p>$\color{white}.\color{black}$</p>
+
+                   <!-- Problem + Solution block -->
+            <section class="section" id="problem-2">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 2: Roll of a Die</h2>
+
+    <p>A $4-$sided die is labeled with the numbers $0,1,2,3$. The die is rolled repeatedly. For each of the following, is it a Markov chain? If so, give its transition matrix. If not, prove it is not by showing that it does not satisfy the definition of Markov chains. In other words, show that there is some choice of states $x_0,x_1,\dots,x_{n-1}$, $i$, $j$ such that:
+    </p>
+
+    $$\mathbb{P}\left(X_{n+1}=j|X_0=x_0,X_1=x_1,\dots,X_{n-1}=x_{n-1},X_n=i\right)\neq \mathbb{P}\left(X_{n+1}=j|X_n=i\right)$$
+
+    <p>If the Markov chain starts from some index other than 0, adjust the definition accordingly. It is sufficient to give one specific counterexample.</p>
+
+    <!-- Use one single list with alphabetic markers -->
+    <ol class="parts" type="a">
+      <li>$W_n$ is the highest number that has appeared up to the $n^{\text{th}}$ roll. For example, if we roll $1,0,1,2,1$, then $W_5=2$, because that is the highest number that has been rolled so far. Is $\left(W_n:n\geq 1\right)$ a Markov chain?</li>
+      <li>$Y_n$ is the number of $1$'s that appeared in the three most recent rolls up to the $n^{\text{th}}$ roll. For example, if we roll $1,2,3,0,1,1$, then $Y_6=2$ because the most recent three rolls were $0,1,1$ (so we got $1$ twice). Is $\left(Y_n:n\geq 3\right)$ a Markov chain?</li>
+      <li>$Z_n$ is the number rolled on the $(n-1)^{\text{th}}$ roll. For example, if we roll $2,1,0,2$, then $Z_4=0$, because the third roll was $0$. Is $\left(Z_n:n\geq 2\right)$ a Markov chain? </li>
+    </ol>
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-2">
+      Show Solution
+    </button>
+
+    <div id="solution-2" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>Under construction.</li>
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+<p>$\color{white}.\color{black}$</p>
+
+
+                   <!-- Problem + Solution block -->
+            <section class="section" id="problem-3">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 3: Chain Transitions</h2>
+
+    <p>Consider the following Markov chain, with states labelled from $0,\dots,5$. The chain makes one transition for each integer increment in time. 
+    </p>
+
+    <img src="Pics/PSET1Q3.png" alt="PSET1Q3" class="centered-image">
+
+    <p>Given that the above chain is in state $0$ just before $t=1$, determine the probability that:</p>
+
+
+    <!-- Use one single list with alphabetic markers -->
+    <ol class="parts" type="a">
+        <li>The process enters state $2$ for the first time at $t=k$.</li>
+        <li>The process never enters state $4$.</li>
+        <li>The process enters state $2$, and then leaves state $2$ on the next time increment.</li>
+        <li>The process enters state $1$ for the first time at $t=3$.</li>
+        <li>The process is in state $3$ immediately after $t=n$. </li>
+    </ol>
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-3">
+      Show Solution
+    </button>
+
+    <div id="solution-3" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>Under construction.</li>
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+<p>$\color{white}.\color{black}$</p>
+
+
+                   <!-- Problem + Solution block -->
+            <section class="section" id="problem-4">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 4: Game of Telephone</h2>
+
+    <p>The "Game of Telephone" is where a starting player (denoted as $\text{SP}$) whispers a message to the next person in line, and the message is passed along until the last person in line reveals it to the group. However, oftentimes the message becomes radically changed once it is revealed. Suppose that the starting player can either tell a truth ($\text{T}$), with probability $p$, or a lie ($\text{L}$), with probability $1-p$, to start the game off. However, at the end of the game when the message is revealed, an initial lie becomes the truth with probability $\epsilon_0$, and an initial truth becomes a lie with probability $\epsilon_1$. The process can be modelled by the Markov chain below. Assume that each game of telephone is independent. </p>
+
+    <img src="Pics/PSET1Q4.png" alt="PSET1Q3" class="centered-image">
+
+
+
+    <!-- Use one single list with alphabetic markers -->
+    <ol class="parts" type="a">
+        <li>What is the probability that the initial message is received correctly? (In other words, an initial truth is revealed as a truth, or an initial lie is revealed as a lie).</li>
+        <li>Suppose that after four games of telephone, the revealed messages are Truth, Lie, Truth, Truth, in that order. What is the probability that all of the messages were received correctly?</li>
+        <li>The process enters state $2$, and then leaves state $2$ on the next time increment.</li>
+        <li>In an effort to improve the reliability of the players in the game, each message is transmitted three times, and it is decided whether the message was received correctly by the majority rule. For example, if the starting player initially tells the truth and transmits this message three times, we take the revealed message as the truth if and only if the revealed message was a truth at least two out of the three times. Then, what is the probability that after these three rounds, a lie is correctly received?</li>
+        <li>Suppose we use the same scheme as in part <b>(c)</b>. What is the probability that the initial message was a lie, given that the revealed message was a truth, a lie, and a truth after three rounds?</li>
+    </ol>
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-4">
+      Show Solution
+    </button>
+
+    <div id="solution-4" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>Under construction.</li>
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+
+
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Active link handling:
+    // 1) Highlight the link that points to the current page (by pathname)
+    // 2) When scrolling within this page, update the active link to the visible section
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+
+    // Highlight by current page
+    links.forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.href);
+      if (url.pathname === location.pathname) a.classList.add('active');
+    });
+
+    // If there are in-page sections, also track by intersection
+    const sectionAnchors = links
+      .map(a => {
+        const url = new URL(a.getAttribute('href'), location.href);
+        return url.pathname === location.pathname && url.hash
+          ? document.querySelector(url.hash)
+          : null;
+      })
+      .filter(Boolean);
+
+    if (sectionAnchors.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const id = '#' + entry.target.id;
+          links.forEach(l => {
+            const url = new URL(l.getAttribute('href'), location.href);
+            if (url.pathname === location.pathname && url.hash === id) {
+              l.classList.toggle('active', entry.isIntersecting);
+            }
+          });
+        });
+      }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+      sectionAnchors.forEach(sec => observer.observe(sec));
+    }
+  </script>
+</body>
+</html>

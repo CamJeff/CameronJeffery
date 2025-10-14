@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stochastic Processes</title>
+
+  <!-- Use the shared stylesheet at the path you specified -->
+  <link rel="stylesheet" href="../COMP_551_Notes/css/style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+  
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a; /* slate-900 */
+      --muted: #475569; /* slate-600 */
+      --border: #e2e8f0; /* slate-200 */
+      --accent: #0ea5e9; /* sky-500 */
+      --accent-weak: #e0f2fe; /* sky-100 */
+      --sidebar-bg: #f8fafc; /* slate-50 */
+    }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Layout */
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+      grid-template-areas:
+        "header header"
+        "sidebar main";
+    }
+
+    header {
+      grid-area: header;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px; /* left brand / centered title / right spacer */
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand { font-weight: 800; letter-spacing: 0.3px; }
+    .brand a { color: inherit; text-decoration: none; }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    /* Sidebar */
+    nav.sidebar {
+      grid-area: sidebar;
+      border-right: 1px solid var(--border);
+      background: var(--sidebar-bg);
+      padding: 20px 16px;
+      position: sticky;
+      top: 60px; /* approximate header height */
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin: 8px 10px 12px;
+    }
+
+    .nav-list { list-style: none; margin: 0; padding: 0; }
+    .nav-item a {
+      display: block;
+      padding: 10px 12px;
+      margin: 6px 4px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid transparent;
+      transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+      font-weight: 500;
+    }
+    .nav-item a:hover { background: var(--accent-weak); border-color: var(--accent); }
+    .nav-item a.active { background: var(--accent-weak); border-color: var(--accent); }
+
+    /* Main */
+    main {
+      grid-area: main;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+      max-width: 1000px;
+    }
+
+    main h1, main h2, main h3 { line-height: 1.25; }
+    .section { scroll-margin-top: 90px; }
+
+
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    pre { background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 12px; overflow: auto; }
+
+    /* Mobile adjustments */
+    .sidebar-toggle {
+      display: none;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 960px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "main";
+      }
+      .header-inner { grid-template-columns: 1fr auto 1fr; }
+      nav.sidebar {
+        position: fixed;
+        inset: 64px 0 auto 0; /* below header */
+        height: auto;
+        max-height: 60vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        display: none; /* toggled by JS */
+        z-index: 30;
+      }
+      .sidebar-toggle { display: inline-block; }
+    }
+
+    /* Utility */
+    .muted { color: var(--muted); }
+    .kicker {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .spacer { height: 12px; }
+  </style>
+
+  <!-- MathJax for LaTeX equation rendering -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script src="../COMP_551_Notes/js/toggle.js" defer></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../notes/index.html"><strong>Notes</strong></a></div>
+        <div class="course-title">Stochastic Processes</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+   <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-tabs">
+    <button class="tab-button active" data-target="lectures-list">Lectures</button>
+    <button class="tab-button" data-target="psets-list">PSETS/Exams</button>
+  </div>
+
+  <!-- Lectures list -->
+  <ul id="lectures-list" class="nav-list">
+    <li class="nav-item"><a href="index.html#lecture-1">Lecture 1: Probability Review</a></li>
+    <li class="nav-item"><a href="lecture2.html">Lecture 2: Introduction to Markov Chains</a></li>
+    <li class="nav-item"><a href="lecture3.html">Lecture 3: Stationary and Limiting Distributions</a></li>
+    <li class="nav-item"><a href="lecture4.html">Lecture 4: Periodicity and Regularity</a></li>
+  </ul>
+
+  <!-- PSETs/Exams list (hidden by default) -->
+  <ul id="psets-list" class="nav-list" hidden>
+    <li class="nav-item"><a href="PSET-1.html">PSET 1: Probability Review</a></li>
+    <li class="nav-item"><a href="PSET-2.html">PSET 2: Stationary Distributions</a></li>
+    <li class="nav-item"><a href="PSET-3.html">PSET 3: Hitting Times</a></li>
+    <li class="nav-item"><a href="PSET-4.html">PSET 4: Infinite Markov Chains</a></li>
+    <li class="nav-item"><a href="PSET-5.html">PSET 5: Branching Processes</a></li>
+    <li class="nav-item"><a href="PSET-6.html">PSET 6: Poisson Processes</a></li>
+  </ul>
+</nav>
+
+    <main>
+      <section id="lecture-1" class="section">
+        <div class="kicker">Lecture 1</div>
+        <h1>Probability Review</h1>
+        <div class="spacer"></div>
+        <div class="card">
+          <p>Before we start, we first need to review some fundamental definitions in probability:</p>
+
+          <ul>
+            <li><b>Random Variables:</b> Essentially described as a variable that takes on its value by chance, typically denoted by capital letters such as $X$, $Y$, or $Z$, with their lower-case counterparts being used to denote real numbers (eg. $x$, $y$, or $z$). Several examples below describe how random variables can take on their values in a given situation:</li>
+            <ol>
+              <li>Dice roll: $X_0\sim \text{Unif}\left(\{1,2,3,4,5,6\}\right)$</li>
+              <li>Coin flip: $X_1\sim \text{Unif}\left(\{\text{H}, \text{T}\}\right)$</li>
+              <li>Sample from a Continuous Distribution: $X_2\sim \exp(1)$, in this case an exponential of rate 1 and state space $\mathbb{R}$. </li>
+            </ol>
+
+            <li><b>Events:</b> The expression $\{X\leq x\}$ is the event that a random variable $X$ assumes a value that is less than or equal to the real number $x$. The event may or may not occur, depending on the outcome of the experiment or phenomenon that determines the value for the random variable $X$. The probability that the event occurs is written as $\mathbb{P}(X\leq x)$. For our examples above, we can write the probability of certain events occurring as:</li>
+
+            <ol>
+              <li> Rolling an odd number: $\mathbb{P}\left(X_0\in \{1,3,5\}\right)=\frac 16 \left|\{1,3,5\}\right|$</li>
+              <li>Flipping tails: $\mathbb{P}\left(X_1=\text{T}\right)=\frac 12$</li>
+              <li>Random variable is in interval $[a,b]$: $\mathbb{P}\left(X_2\in [a,b]\right)=\int_a^b e^{-x}dx$, with $0< a< b$. </li>
+            </ol>
+
+            <li><b>Independence:</b> If you have events (i.e a subset of the space state), and you call them $A_1$, $A_2,\dots,A_n$, you would say these events are independent if for every $k\in \mathbb{Z}$ in $1\leq k\leq n$ and any collection $I\subset \{1,2,\dots,n\}$ then:</li>
+            $$\mathbb{P}\left(\bigcap_{j\in I}A_j\right)=\prod_{j\in I}\mathbb{P}\left(A_j\right)$$
+
+            <p>For random variables $X_1,X_2,\dots,X_n$ taking values in the space state, call them $S_1,S_2,\dots,S_n$, and if for any $E_1\subseteq S_1$, $E_2\subseteq S_2,\dots,E_n\subseteq S_n$, then we can say that events $A_j=\{X_i\in E_j\}$ for $1\leq j\leq n$ are independent.</p>
+          </ul>
+
+          <!-- Problem + Solution block -->
+            <section class="section" id="problem-1">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 1</h2>
+
+    <p><strong>Coin Flips:</strong> Suppose we have a fair coin, and we flip it repeatedly. Let
+      \(X_1, X_2,\) and \(X_3\) be outcomes of these coin flips. For each \(X_j\), the state space is
+      \(\{\text{H}, \text{T}\}\). For each \(j\), it's clear that \(X_j \sim \text{Unif}\big(\{\text{H}, \text{T}\}\big)\).
+      The random variables \(X_1, X_2, \dots, X_n\) are independent.
+    </p>
+
+    <!-- Use one single list with alphabetic markers -->
+    <ol class="parts" type="a">
+      <li>Find \(\mathbb{P}\!\left(X_1=\text{H},\, X_2=\text{T}\right)\).</li>
+      <li>\(A_1=\{X_1\neq X_2\}\), \(A_2=\{X_2\neq X_3\}\), and \(A_3=\{X_1\neq X_3\}\).
+          What is \(\mathbb{P}(A_1)\)?</li>
+      <li>What is \(\mathbb{P}(A_1 \cap A_2)\)? Are \(A_1\) and \(A_2\) independent?
+          Is \(\{A_1, A_2, A_3\}\) independent?</li>
+    </ol>
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-1">
+      Show Solution
+    </button>
+
+    <div id="solution-1" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li> We simply have:</li>
+
+            \begin{align*}
+        \mathbb{P}(X_1=\text{H}, X_2=\text{T}) & = \mathbb{P}\left(\{X_1=\text{H}\}\cap\{X_2=\text{T}\}\right) & & \text{Notation} 
+        \\ & = \mathbb{P}\left(\{X_1=\text{H}\}\right)\mathbb{P}\left(\{X_2=\text{T}\}\right) & & \text{Independence}
+        \\ & = \frac 12 \times \frac 12= \boxed{\frac 14}  & & \text{Uniform Distribution}
+    \end{align*}
+
+        <li>For $X_1\neq X_2$, we know that the coin identity for the first flip must be different from the second flip, i.e we must have $(\text{H}, \text{T})$, or $(\text{T}, \text{H})$. From this, we can see that there are only four possible outcomes for this: $\text{HT}$, $\text{TH}$, $\text{TT}$, or $\text{HH}$. As such we have:</li>
+
+            $$\mathbb{P}(A_1)=\frac 14 \left|\{(\text{H} \text{T}), (\text{T} \text{H}) \}\right|=\frac 24=\boxed{\frac 12}$$
+
+        <li>For $A_1\cap A_2$, we require that $X_1\neq X_2$ (first toss is not equal to the second toss) AND that $X_2\neq X_3$ (second toss is not equal to the third toss). The only sequences of heads and tails that satisfy this is $\text{HTH}$ and $\text{THT}$.  For three total tosses, there are $2^3=8$ total outcomes. As such, we have:</li>
+        
+        $$\mathbb{P}(A_1\cap A_2)=\frac 18 \left|\{(\text{HTH}), (\text{THT})\}\right|=\boxed{\frac 14}$$
+        <p>Which is exactly equal to $\mathbb{P}(A_1)\times \mathbb{P}(A_2)$, hence $A_1$ and $A_2$ are independent. $\{A_1,A_2,A_3\}$ is not independent, since we would require tossing the coin three times yield different identities, which is impossible (it can only be either heads of tails). So we have:</p>
+
+        $$\mathbb{P}\left(\bigcap_{j=1}^2 A_j\right)=0\neq \mathbb{P}(A_1)\mathbb{P}(A_2)\mathbb{P}(A_3)$$
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+          <!-- /Problem + Solution block -->
+
+          <ul>
+            <li><b>Conditioning:</b> This is the process of changing the probability space by adding information. For events $A$ and $B$ with $\mathbb{P}(B)>0$, then:</li>
+
+            $$\mathbb{P}(A|B)=\frac{\mathbb{P}(A\cap B)}{\mathbb{P}(B)}$$
+
+            And if $A$ and $B$ are independent: $\mathbb{P}(A|B)=P(A)$.
+
+            <p>We can also say this can act as function. It takes as inputs values for $A$ and outputs the value of the conditional probability.</p>
+
+            $$A\longmapsto \mathbb{P}(A|B)$$
+          </ul>
+
+                    <!-- Problem + Solution block -->
+            <section class="section" id="problem-2">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 2</h2>
+
+    <p>We are also able to condition on random variables. Let $X_1$ and $X_2$ be random independent variables from distribution $\text{Unif}(\{1,2\})$. Let $Y=X_1X_2$. 
+    </p>
+
+    <!-- Use one single list with alphabetic markers -->
+    <ol class="parts" type="a">
+      <li>What is the distribution of $Y$?</li>
+      <li>What is the distribution of $Y$ conditioned on $X_1$.  </li>
+    </ol>
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-2">
+      Show Solution
+    </button>
+
+    <div id="solution-2" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li> We have that $X_1$ and $X_2$ can be either 1 or 2, and $Y$ is there product. So clearly, the only possible values of $Y$ is 1 ($1\times 1$), 2 ($1\times 2$ or $2\times 1$), or $4$ ($2\times 2$). Thus, the distribution of $Y$ is:</li>
+
+        <img src="Pics/Table1.png" alt="Table1" class="centered-image-small">
+
+
+        <li>If we fix $X_1$ to be either $1$ or $2$, the following gives the resulting distribution of $Y$ conditioned on $X_1$:</li>
+
+        <img src="Pics/Table2.png" alt="Table2" class="centered-image-small">
+
+        <p>It's also clear that we could write as a function in such a way, for instance:</p>
+
+        $$\mathbb{P}(Y=1|X_1)=\begin{cases} \frac 12 & \text{if }X_1=1 \\ 0 & \text{if }X_1=2 \end{cases}$$
+
+        <p>Which is also a random variable, as it is dependent on values of $X_1$.</p>
+
+
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+<p>$\color{white}.\color{black}$</p>
+
+                        <!-- Problem + Solution block -->
+            <section class="section" id="problem-3">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 3</h2>
+
+    <p>Consider a family who want to have 2 kids, that will either by a boy ($\text{B}$) or a girl ($\text{G}$), occuring each with probability $\frac 12$. 
+    </p>
+
+    <!-- Use one single list with alphabetic markers -->
+    <ol class="parts" type="a">
+      <li>What is the probability that the family will have two girls, given that the oldest child is a girl. </li>
+      <li>What is the probability that the family will have two girls, given that they have <em>at least</em> one girl child.</li>
+      <li>What is the probability that the family will have two girls, given that there is a girl child in their family named Lilly?</li>
+
+      <p>The probability that the family names their child Lilly is $\alpha\ll 1$, and assume no boy can be named Lilly. For this, you may need to recall Bayes Theorem:</p>
+
+      $$\mathbb{P}(A|B)=\frac{\mathbb{P}(B|A)\mathbb{P}(A)}{\mathbb{P}(B)}$$
+    </ol>
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-3">
+      Show Solution
+    </button>
+
+    <div id="solution-3" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>Here, we use the definition of conditional probability to find $\mathbb{P}(GG|(\cdot,G))$. First, we define the possible outcomes  where the oldest child is a girl, call it $A$, as:</li>
+
+        $$A=\{BG, GG\}$$
+
+        <p>Note that there are $2^2=4$ possible gender combinations for two children. And so we compute:</p>
+
+        $$\mathbb{P}(GG|A)=\frac{\mathbb{P}(GG\cap A)}{P(A)}=\frac{P(GG)}{P(A)}=\frac 14\bigg/\frac 12=\boxed{\frac 12}$$
+
+        <li>In this case, the possible outcomes of having two children with at least one of them being a girl is:</li>
+
+        $$A=\{GG, BG, GB\}$$
+
+        <p>And so:</p>
+
+        $$\mathbb{P}(GG|A)=\frac{\mathbb{P}(GG\cap A)}{\mathbb{P}(A)}=\frac{\mathbb{P}(GG)}{\mathbb{P}(A)}=\frac 14\bigg/\frac 34=\boxed{\frac 13}$$
+
+        <li>Define $L=$event where at least one child is named Lilly. Then using Baye's rule:</li>
+
+        $$\mathbb{P}(GG|L)=\frac{\mathbb{P}(L|GG)\mathbb{P}(GG)}{\mathbb{P}(L)}$$
+
+        <p>Now let's look at each factor. $\mathbb{P}(L|GG)$ is the probability that at least one child is named Lilly given that they have two girls. We simply have to sum the probabilities for each case: one where both girls are named Lilly, and the other where only one is named Lilly, and the other is not:</p>
+
+        $$\mathbb{P}(L|GG)=\alpha^2+2(1-\alpha)\alpha=\alpha^2+2\alpha-2\alpha^2=2\alpha-\alpha^2$$
+
+        <p>Now, for $\mathbb{P}(L)$, we can use the Law of Total Probability which states that for s sample space $\Omega=\bigcup_kB_k$ for disjoint sets $B_i\cap B_j=\emptyset$ $\forall\;i\neq j$, then:</p>
+
+        $$\mathbb{P}(A)=\sum_k \mathbb{P}(A|B_k)\mathbb{P}(B_k)$$
+
+        <p>And so for our example:</p>
+
+            \begin{align*}
+        \mathbb{P}(L) & = \mathbb{P}(L|GG)\mathbb{P}(GG)+\mathbb{P}(L|BG)\mathbb{P}(BG)+\mathbb{P}(L|GB)\mathbb{P}(BG)+\underbrace{\mathbb{P}(L|BB)}_{=0}\mathbb{P}(BB)
+        \\ & = (2\alpha-\alpha^2)\cdot\frac 14+(\alpha)\cdot\frac 14+(\alpha)\cdot\frac 14
+        \\ & = \frac 14 (4\alpha-\alpha^2)
+    \end{align*}
+
+    <p>And so plugging all of this back into Bayes Theorem:</p>
+
+        $$\mathbb{P}(GG|L)=\frac{\mathbb{P}(L|GG)\mathbb{P}(GG)}{\mathbb{P}(L)}=\frac{(2\alpha-\alpha^2)\left(\frac 14\right)}{\frac 14(4\alpha-\alpha^2)}=\boxed{\frac{2-\alpha}{4-\alpha}}$$
+
+        <p>Of course, for $\alpha$ small, this probability will approach $\frac 12$. </p>
+
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+
+<p>$\color{white}.\color{black}$</p>
+
+
+                            <!-- Problem + Solution block -->
+            <section class="section" id="problem-4">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 4</h2>
+
+    <p>Say we flip a coin where $\mathbb{P}(H)=\frac 12$, and we record all of the coin flips (for instance $HHTH$). You play a game where if you flip two heads in a row ($HH$), you win. You lose if you flip two tails in a row ($TT$). Note that $\mathbb{P}(T)=q=1-p$
+    </p>
+
+    <!-- Use one single list with alphabetic markers -->
+    <ol class="parts" type="a">
+      <li>What is the probability that you win the game?</li>
+      <li>Say instead you win if you flip a heads followed by a tails ($HT$) (you still lose if you flip two tails in a row). What is the probability that you will win this game?</li>
+
+    </ol>
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-4">
+      Show Solution
+    </button>
+
+    <div id="solution-4" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>We enumerate over all of the possible scenarios when we win:</li>
+
+        $$\text{Win}=\{HH, HTHH, HTHTHH,\cdots\}\cup\{THH, THTHH, \cdots\}$$
+
+        <p>And so we have:</p>
+
+            \begin{align*}
+     \mathbb{P}(\text{Win}) & =p^2+p^3q+p^4q+\cdots+p^2q+p^3q^2+\cdots   
+     \\ & = p^2(1+q)\underbrace{\left(1+pq+(pq)^2+\cdots\right)}_{\text{Geometric Series}}
+     \\ & = \boxed{p^2(1-q)\left(\frac{1}{1-pq}\right)}
+    \end{align*}
+
+    <li>In this case, we enumerate over all possible scenarios when we win:</li>
+
+    $$\text{Win}=\{HT, HHT, HHHT, \cdots\}\cup\{THT, THHT, \cdots\}$$
+
+
+    <p>And so we have:</p>
+
+    \begin{align*}
+    \mathbb{P}(\text{Win}) & = pq+p^2q+p^3q+\cdots+pq^2+p^2q^2+\cdots
+    \\ & = (1+q)\left(pq+p^2q+p^3q+\cdots\right)
+    \\ & = pq(1+q)\left(1+p+p^2+\cdots\right)
+    \\ & = \boxed{pq(1+q)\left(\frac{1}{1-p}\right)}
+\end{align*}
+
+        <p>What's interesting is if this was a fair coin, where $p=q=\frac 12$, the chance of winning in part (a) is $0.5$, whereas the chance of winning in part (b) is $0.75$. </p>
+
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+
+<ul>
+    <li> <b>Conditional Expectation:</b> Suppose $Y$ is a random variable taking finitely many values, with $B$ being an event with $\mathbb{P}(B)>0$, then:</li>
+    $$\mathbb{E}(Y|B)=\sum_y y\mathbb{P}(Y=y|B)$$
+
+    <p>With the sum over all possible values. And for a random variable $X$, we have:</p>
+
+    $$\mathbb{E}(Y|X)=\sum_y yP(Y=y|X)$$
+</ul>
+
+                            <!-- Problem + Solution block -->
+            <section class="section" id="problem-5">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 5</h2>
+
+    <p>Recall our last example problem: Let $X_1$ and $X_2$ be random independent variables from $\text{Unif}(\{1,2\})$. Let $Y=X_1X_2$. Find $\mathbb{E}(Y|X_1)$.
+    </p>
+
+    <!-- Use one single list with alphabetic markers -->
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-5">
+      Show Solution
+    </button>
+
+    <div id="solution-5" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+     <p>We compute:</p>
+
+     $$\mathbb{E}(Y|X_1)=\mathbb{E}(X_1X_2|X_1)=X_1\left(\frac 12 \cdot 1+\frac 12 \cdot 2\right)=\boxed{\frac 32 X_1}$$
+
+     <p>We can do the above since $X_1$ and $X_2$ are independent, and given that $X_1$ is true, we hold it fixed, and simply compute the expectation of $X_2$ sampling from $\text{Unif}(\{1,2\})$ with equal probability (in this case $\frac 12$). </p>
+
+     <p>In a more explicit approach, we can simply apply the formula presented above:</p>
+
+     $$\mathbb{E}(Y|X_1)=1\cdot \mathbb{P}(Y=1|X_1)+2\cdot\mathbb{P}(Y=2|X_1)+4\cdot\mathbb{P}(Y=4|X_1)$$
+
+     <p>If $X_1=1$, using the distribution we constructed in the previous problem:</p>
+
+     $$\mathbb{E}(Y|X_1)=1\cdot\frac 12+2\cdot\frac 12=\frac{1+2}{2}=1\cdot\frac 32=\boxed{\frac 32 X_2}$$
+
+     <p>If $X_1=2$, we find that:</p>
+
+     $$\mathbb{E}(Y|X_1)=2\cdot\frac 12+4\cdot\frac 12=\frac{2+4}{2}=2\cdot\frac 32=\boxed{\frac 32 X_1}$$
+
+
+    </div>
+  </div>
+</section>
+
+
+<h3>Properties of Conditional Expectation:</h3>
+
+<ul>
+    <li>(Linearity) For constants $a$ and $b$ and random variables $X$, $Y$, and $Z$:</li>
+
+    $$\mathbb{E}(aY+bZ|X=x)=a\mathbb{E}(Y|X=x)+b\mathbb{E}(Z|X=x)$$
+
+    <li>If $g$ is a function:</li>
+
+        $$E(g(Y)|X=x)=\begin{cases}
+        \sum_y g(y)\mathbb{P}(Y=y|X=x) & \text{Discrete}
+        \\ \int_{-\infty}^{\infty} g(y)f_{Y|X}(y|x)dy & \text{Continuous}
+    \end{cases}$$
+
+    <li>(Independence) If $X$ and $Y$ are independent:</li>
+
+     $$\mathbb{E}(Y|X=x)=\mathbb{E}(Y)$$
+
+     <li>If $Y=g(X)$ is a function of $X$:
+
+    $$\mathbb{E}(Y|X=x)=g(x)$$</li>
+</ul>
+
+
+                            <!-- Problem + Solution block -->
+            <section class="section" id="problem-6">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 6</h2>
+
+    <p>Consider random variables $X$, $Y$, and $U$, where $U$ is uniformly distributed on $(0,1)$. Find the conditional expectation:
+    </p>
+
+    $$\mathbb{E}\left(UX^2+(1-U)Y^2|U=u\right)$$
+
+    <!-- Use one single list with alphabetic markers -->
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-6">
+      Show Solution
+    </button>
+
+    <div id="solution-6" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+     <p>By linearity of conditional expectation:</p>
+        
+    \begin{align*}
+\mathbb{E}\left(UX^2+(1-U)Y^2|U=u\right) & =\mathbb{E}\left(uX^2+(1-u)Y^2|U=u\right)
+\\ & = u\mathbb{E}(X^2|U=u)+(1-u)\mathbb{E}(Y^2|U=u)
+\end{align*}
+
+        <p>If $X$ and $Y$ are also independent of $U$, then we have:</p>
+
+        $$\boxed{u\mathbb{E}(X^2)+(1-u)\mathbb{E}(Y^2)}$$
+
+    </div>
+  </div>
+</section>
+
+
+<p>Let $Y$ be a random variable. Let $A_1,\dots,A_k$ be a sequence of events that partition the sample space. Then:</p>
+
+$$\mathbb{E}(Y)=\sum_{i=1}^k \mathbb{E}(Y|A_i)\mathbb{P}(A_i)$$
+
+<p>If $X$ and $Y$ are jointly distributed random variables:</p>
+
+$$\mathbb{E}(Y)=\sum_x \mathbb{E}(Y|X=x)\mathbb{P}(X=x)$$
+
+
+                            <!-- Problem + Solution block -->
+            <section class="section" id="problem-7">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 7</h2>
+
+    <p>A fair coin is flipped repeatedly. Find the expected number of flips needed to get two heads in a row.
+    </p>
+
+
+    <!-- Use one single list with alphabetic markers -->
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-7">
+      Show Solution
+    </button>
+
+    <div id="solution-7" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+     <p>Define $Y$ as the number of flips needed. Consider three events:</p>
+
+
+     <ul>
+        <li>$\text{T}$: The first flip is tails.</li>
+        <li>$\text{HT}$: The first flip is heads, the second flip is tails.</li>
+        <li>$\text{HH}$: The first two flips are heads. </li>
+     </ul>
+
+        <p>These three events partition the sample space. By the expectation law above:</p>
+
+       \begin{align*}
+\mathbb{E}(Y) & =\mathbb{E}(Y|T)\mathbb{P}(T)+\mathbb{E}(Y|HT)\mathbb{P}(HT)+\mathbb{E}(Y|HH)\mathbb{P}(HH)   
+\\ & = \mathbb{E}(Y|T)\cdot\frac 12+\mathbb{E}(Y|HT)\cdot\frac 14+\mathbb{E}(Y|HH)\cdot\frac 14
+\end{align*}
+
+        <p>Let's start with $\mathbb{E}(Y|HH)$. Here, we have already flipped two heads in our first two coin flips. So the expected number of flips given that we already flipped two heads in a row is simply 2.</p>
+
+        <p>For $\mathbb{E}(Y|T)$, we assume that the first flip is tails. Since successive flips are independent, after the first tails, we \textit{start over} waiting for two heads in a row. Since one flip has been used, it follows that $\mathbb{E}(Y|T)=1+\mathbb{E}(Y).$</p>
+
+        <p>Similarly for $\mathbb{E}(Y|HT)$, we've used two flips, and we start over waiting for two heads, so we have: $\mathbb{E}(Y|HT)=2+\mathbb{E}(Y)$.</p>
+
+        $$\mathbb{E}(Y)=(1+\mathbb{E}(Y))\cdot\frac 12+(2+\mathbb{E}(Y))\cdot\frac 14+(2)\cdot\frac 14$$
+$$\mathbb{E}(Y)\cdot\frac 14 = \frac 32\Longleftrightarrow \boxed{\mathbb{E}(Y)=6}$$
+
+    </div>
+  </div>
+</section>
+
+
+<h3>Law of Total Expectation:</h3>
+
+<p>For random variables $X$ and $Y$:</p>
+
+$$\mathbb{E}(Y)=\mathbb{E}\left(\mathbb{E}[Y|X]\right)$$
+
+<p>Or:</p>
+
+$$\mathbb{E}(\mathbb{P}(Y\in A|X))=\mathbb{P}(Y\in A)$$
+
+<h3><i>Proof:</i></h3>
+
+\begin{align*}
+    \mathbb{E}\left(\mathbb{E}(Y|X)\right) & = \sum_x\mathbb{E}(Y|X=x)\mathbb{P}(X=x)
+    \\ & = \sum_x\left(\sum_y y\mathbb{P}(Y=y|X=x)\right)\mathbb{P}(X=x)
+    \\ & = \sum_y y\sum_x \mathbb{P}(Y=y|X=x)\mathbb{P}(X=x)
+    \\ & = \sum_y y\sum_x\mathbb{P}(X=x,Y=y)
+    \\ & = \sum_y y\mathbb{P}(Y=y)=\mathbb{E}(y)
+\end{align*}
+
+
+<h3>Law of Total Conditional Expectation:</h3>
+
+<p>If you have three random variables, $X$, $Y$, and $Z$ such that:</p>
+
+$$\mathbb{E}[Z|X,Y]=\mathbb{E}[Z|X=s_1, Y=s_2]$$
+
+<p>If $X=s_1$ and $Y=s_2$, and:</p>
+
+$$\mathbb{P}(Z\in A|X,Y)=\mathbb{P}(Z\in A|X=s_1, Y=s_2)$$
+
+<p>Then:</p>
+
+$$\mathbb{E}(\mathbb{E}(Z|X,Y)|X)=\mathbb{E}(Z|X)$$
+$$\mathbb{E}(\mathbb{P}(Z\in A|X,Y)|X)=\mathbb{P}(Z\in A|X)$$
+
+<p>If $X,Y$ are independent, then $\mathbb{E}(Y|X)=\mathbb{E}(Y)$, since the outcome of $X$ has no effect on the outcome of $Y$. Similarly, $\mathbb{P}(Y\in A|X)=\mathbb{P}(Y\in A)$.</p>
+
+
+                            <!-- Problem + Solution block -->
+            <section class="section" id="problem-8">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 8</h2>
+
+    <p>Let $X_1$, $X_2$, and $X_3$ be independent random variables distributed on $\text{Unif}(\{1,2\})$ with $Z=X_1X_2(-1)^{X_3}$, and $W=X_1X_2X_3$.
+    </p>
+
+    <!-- Use one single list with alphabetic markers -->
+    <ol class="parts" type="a">
+      <li>What is $\mathbb{E}(Z|X_1,X_2)$?</li>
+      <li>What is $\mathbb{E}(Z|X_1,X_2,X_3)$? </li>
+      <li>What is $\mathbb{E}(Z)$? </li>
+      <li>What is $\mathbb{E}(W|X_1,X_2)$?</li>
+      <li>What is $\mathbb{E}(W|X_1)$? </li>
+    </ol>
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-8">
+      Show Solution
+    </button>
+
+    <div id="solution-8" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>We have:</li>
+        $$\mathbb{E}(Z|X_1,X_2)=\mathbb{E}\left(X_1X_2(-1)^{X_3}|X_1, X_2\right)$$
+        <p>Since we're conditioning on $X_1$ and $X_2$, these values are known constants, and by linearity, we can take the product $X_1X_2$ out of the expectation:</p>
+        $$=X_1X_2\mathbb{E}\left((-1)^{X_3}|X_1,X_2\right)=X_1X_2\mathbb{E}\left((-1)^{X_3}\right)$$
+        <p>Where we used the fact that $X_1$, $X_2$ are independent. We then use our expectation formula:</p>
+        $$=X_1X_2\left[(-1)^1\mathbb{P}(X_3=1)+(-1)^2\mathbb{P}(X_3=2)\right]=X_1X_2\left(-1\cdot\frac 12+1\cdot\frac 12\right)=\boxed{0}$$
+
+        <li>Since we are conditioning on all three variables, they are all known, and so this simply reduces to:</li>
+        $$\mathbb{E}(Z|X_1,X_2,X_3)=\boxed{Z}$$
+
+        <li>Using the law of total expectation:</li>
+        $$\mathbb{E}(Z)=\mathbb{E}(\mathbb{E}(Z|X_1,X_2))=\mathbb{E}(0)=0$$
+
+        <p>Where we used our answer from part (a).</p>
+
+        <li>We have:</li>
+            \begin{align*}
+     \mathbb{E}(W|X_1,X_2) & =\mathbb{E}(X_1X_2X_3|X_1,X_2)
+     \\ & =X_1X_2\mathbb{E}(X_3|X_1X_2)   
+     \\ & = X_1X_2\mathbb{E}(X_3)
+     \\ & = X_1X_2\left(1\cdot\mathbb{P}(X_3=1)+2\cdot\mathbb{P}(X_3=2)\right)
+     \\ & = X_1X_2\left(1\cdot\frac 12 +2\cdot\frac 12\right)
+     \\ & = \boxed{\frac 32 X_1X_2}
+    \end{align*}
+        
+        <li>We have:</li>
+
+            \begin{align*}
+        \mathbb{E}(W|X_1) & = \mathbb{E}\left(\mathbb{E}(W|X_1,X_2)|X_1\right) & \;\;\;\text{(Law of Total Conditional Expectation)}
+        \\ & = \mathbb{E}\left(\frac 32 X_1X_2|X_1\right) & \;\;\;\text{(By our answer in part (d))}
+        \\ & = \frac 32 X_1\mathbb{E}(X_2|X_1)
+        \\ & = \frac 32 X_1\mathbb{E}(X_2)
+        \\ & =\boxed{\left(\frac 32\right)^2X_1} & \text{(By our work in part (d))}
+    \end{align*}
+
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar active link handling + mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', toggleSidebar);
+    }
+
+    // Highlight active nav item on scroll
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+    const sections = links
+      .map(a => document.querySelector(a.getAttribute('href')))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const id = '#' + entry.target.id;
+        const link = links.find(a => a.getAttribute('href') === id);
+        if (link) {
+          if (entry.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+          }
+        }
+      });
+    }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+    sections.forEach(sec => observer.observe(sec));
+  </script>
+
+  <!-- Include your external toggle script exactly where you said it lives -->
+  <script src="../COMP_551/Notes/js/toggle.js"></script>
+</body>
+</html>

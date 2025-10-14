@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stochastic Processes</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="../COMP_551_Notes/css/style.css">
+
+  <style>
+/* (a), (b), (c) ... */
+ol.parts {
+  list-style: none;              /* kill browser markers */
+  counter-reset: parts;          /* start counter */
+  margin: 12px 0 16px;
+  padding-left: 0;
+}
+ol.parts > li {
+  counter-increment: parts;
+  position: relative;
+  padding-left: 1.8rem;          /* room for (a) */
+  margin: 6px 0;
+}
+ol.parts > li::before {
+  content: "(" counter(parts, lower-alpha) ") ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 600;
+}
+
+/* (i), (ii), (iii) ... */
+ol.roman {
+  list-style: none;              /* kill browser markers */
+  counter-reset: roman;
+  margin: 8px 0 4px 0;
+  padding-left: 0;
+}
+ol.roman > li {
+  counter-increment: roman;
+  position: relative;
+  padding-left: 1.8rem;          /* room for (i) */
+  margin: 4px 0;
+}
+ol.roman > li::before {
+  content: "(" counter(roman, lower-roman) ") ";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 600;
+}
+
+/* Helpful: add a bit of spacing between any ul items if needed */
+ul.spaced li { margin-bottom: 8px; }
+</style>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script src="../COMP_551_Notes/js/toggle.js" defer></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../notes/index.html"><strong>Notes</strong></a></div>
+        <div class="course-title">Stochastic Processes</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+   <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-tabs">
+    <button class="tab-button" data-target="lectures-list">Lectures</button>
+    <button class="tab-button active" data-target="psets-list">PSETS/Exams</button>
+  </div>
+
+  <!-- Lectures list -->
+  <ul id="lectures-list" class="nav-list" hidden>
+    <li class="nav-item"><a href="index.html#lecture-1">Lecture 1: Probability Review</a></li>
+    <li class="nav-item"><a href="lecture2.html">Lecture 2: Introduction to Markov Chains</a></li>
+    <li class="nav-item"><a href="lecture3.html">Lecture 3: Stationary and Limiting Distributions</a></li>
+    <li class="nav-item"><a href="lecture4.html">Lecture 4: Periodicity and Regularity</a></li>
+  </ul>
+
+  <!-- PSETs/Exams list (hidden by default) -->
+  <ul id="psets-list" class="nav-list">
+    <li class="nav-item"><a href="PSET-1.html">PSET 1: Probability Review</a></li>
+    <li class="nav-item"><a href="PSET-2.html">PSET 2: Stationary Distributions</a></li>
+    <li class="nav-item"><a href="PSET-3.html">PSET 3: Hitting Times</a></li>
+    <li class="nav-item"><a href="PSET-4.html">PSET 4: Infinite Markov Chains</a></li>
+    <li class="nav-item"><a href="PSET-5.html">PSET 5: Branching Processes</a></li>
+    <li class="nav-item"><a href="PSET-6.html">PSET 6: Poisson Processes</a></li>
+  </ul>
+</nav>
+
+    <main>
+      <section id="lecture-2" class="section">
+        <div class="kicker">Problem Set 6</div>
+        <h1>Poisson Processes</h1>
+        <div class="spacer"></div>
+        <div class="card">
+
+          <p><strong>Note:</strong> This is not a real problem set from the class. All of these 
+          questions are ones that I either wrote myself or found online or from textbooks. I made these 
+          to help supplement my learning and get in extra practice. 
+         </p>
+
+            <p>A Poisson process is one of the most widely used counting process that is also a stochastic
+                model that tracks the number of certain (rare) occurences within a given time interval. 
+                It can model the number of customers a store gets, the number of earthquakes occurences, or 
+                the number of radioactive decay events. You can access a pdf of the problem set 
+                <a href="PDFs/PSET6.pdf" target="_blank" rel="noopener">Here</a>, 
+            with the pdf of solutions Here.</p>
+
+
+                    <!-- Problem + Solution block -->
+            <section class="section" id="problem-1">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 1: Trains</h2>
+
+    <p>A train bridge is constructed across a wide rive. Trains arrive at the bridge according to a Poisson process with average rate of $3$ trains per day.</p>
+
+    <!-- Use one single list with alphabetic markers -->
+<ol class="parts">
+        <li>If a train arrives on day $0$, find the probability that there will be no trains on days $1$, $2$, and $3$.</li>
+        <li>Find the probability that the next train to arrive after the first train on day $0$, takes more than $3$ days to arrive. </li>
+        <li>Find the probability that no trains arrive in the first $2$ days, but $4$ trains arrive on the $4$th day. </li>
+        <li>Find the probability that it takes more than $2$ days for the $5$th train to arrive at the bridge.</li>
+    </ol>
+
+
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-1">
+      Show Solution
+    </button>
+
+    <div id="solution-1" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>The number of trains arriving on days $1$, $2$, and $3$ are independent of the number of trains arriving on day $0$. Let $N_t$ denote the total number of trains that arrive after $t$ days. Then $N_t$ is a Poisson random variable with parameter $\lambda t=3t$, and we have:</li>
+
+            \begin{align*}
+        \mathbb{P}(N_4-N_1=0 \;|\; N_1=1) & = \mathbb{P}(N_4-N_1=0)=\mathbb{P}(N_3=0)
+        \\ & = \frac{e^{3(3)}(3(3))^0}{0!}
+        \\ & =\boxed{e^{-9}}
+    \end{align*}
+
+        <li>The event that the next arrival is more than three days after the train arrival on day $0$ is the same as the event that there are zero arrivals in the three days following the train arrival on day $0$. Therefore, the required probability is the same as found in part \textbf{(a)}, namely, $\boxed{e^{-9}}$.</li>
+
+        <li>The number of trains arriving in the first $2$ days is independent of the number of trains arriving on day $4$. Therefore, we have:</li>
+
+            \begin{align*}
+        \mathbb{P}(N_2=0\cap N_4-N_3=4) & =\mathbb{P}(N_2=0)\mathbb{P}(N_4-N_3=4)=\mathbb{P}(N_2=0)\mathbb{P}(N_1=4)
+        \\ & = \frac{e^{-6}(6)^0}{0!}\cdot\frac{e^{-3}(3)^4}{4!}=\boxed{\frac{27}{8}e^{-9}}
+    \end{align*}
+
+    <li>The event that it takes more than $2$ days for the $5$-th arrival is equivalent to the event that there are at most $4$ arrivals in the first $2$ days. Therefore, the required probability is equal to:</li>
+
+        \begin{align*}
+        \mathbb{P}(N_2\leq 4 & )=\sum_{k=0}^4 \mathbb{P}(N_2=k)=\sum_{k=0}^4 \frac{e^{2(3)}(2(3))^k}{k!}
+        \\ & = e^{-6}\left(\frac{(6)^1}{0!}+\frac{(6)^1}{1!}+\frac{(6)^2}{2!}+\frac{(6)^3}{3!}+\frac{(6)^4}{4!}\right)
+        \\ & =e^{-6}(1+6+18+36+54)
+        \\ & = \boxed{115e^{-6}}
+    \end{align*}
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+
+<p>$\color{white}.\color{black}$</p>
+
+                   <!-- Problem + Solution block -->
+            <section class="section" id="problem-2">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 2: Casino Bell</h2>
+
+    <p>Suppose you enter the Poisson casino and play their most popular game: "Press the button". The game is incredibly simple:</p>
+
+    <ul>
+        <li>There is a bell that rings at instantaneous times according to a Poisson process with rate $\lambda>0$ rings per hour.</li>
+        <li>The game lasts exactly one hour, and you are presented with a button that you press only when you hear the bell ring. You are allowed to press the button only once during the hour-long game. </li>
+        <li>You win the game if you press the button before the one-hour time limit is up and, you press the button on the bell's <em>last ring of the game</em>. Meaning, the bell should no longer ring for the rest of the game after you press the button.</li>
+        <li>If before the one-hour mark the bell rings even once after you have pressed the button, you lose the game. </li>
+    </ul>
+
+    <p>Suppose you develop the following strategy: You wait until time $s$, ($0\leq s\leq 1$ hours), doing nothing before time $s$. After time $s$, you press the button the first time you hear the bell ring. </p>
+
+    <ol class="parts">
+            <li>Find the probability (in terms of $s$) that you win this game. </li>
+            <li>Find the optimal value of $s$ and the corresponding winning probability. </li>
+      </ol>
+
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-2">
+      Show Solution
+    </button>
+
+    <div id="solution-2" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+        <ol class="parts">
+            <li>The player wins the game if the bell rings exactly once between time $s$ and time $1$ hour. Since the number of rings is Poisson distributed with parameter $\lambda t=\lambda(1-s)$, the winning probability is:</li>
+
+            $$\mathbb{P}(\text{win})=\mathbb{P}(N_{1-s}=1)=\boxed{\lambda (1-s)e^{-\lambda(1-s)}}$$
+
+            <li>The function $t\mapsto te^{-t}$ is increasing on $[0,1]$, and attains its maximal value $e^{-1}$ at $t=1$, and is then decreasing on $[1,\infty)$. Now substitute $t$ with $\lambda(1-s)$, which can range the interval from $0$ to $\lambda$. If $\lambda< 1$, this expression cannot reach $1$. In this case, the maximal winning probability is attained at $s=0$ and equals $\lambda e^{-\lambda}$. For $\lambda\geq 1$, the expression $\lambda(1-s)$ reaches $1$ at $\boxed{s=(\lambda-1)/\lambda}$ and the maximum winning probability equals $\boxed{e^{-1}}$. </li>
+        </ol>
+
+
+    </div>
+  </div>
+</section>
+
+<p>$\color{white}.\color{black}$</p>
+
+
+                   <!-- Problem + Solution block -->
+            <section class="section" id="problem-3">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 3: Go Fish</h2>
+
+    <p>A fisherman catches fish according to a Poisson process with rate $\lambda=0.6$ per hour. The fisherman will keep fishing for two hours. If he has caught at least one fish, he quits. Otherwise, he continues until he catches at least one fish.</p>
+
+    <ol class="parts">
+        <li>Find the probability that he stays for more than two hours.</li>
+        <li>Find the probability that the total time he spends fishing is between two and five hours.</li>
+        <li>Find the probability that he catches at least two fish.</li>
+        <li>Find the expected number of fish that he catches.</li>
+        <li>Find the expected total fishing time, given that he has been fishing for four hours.</li>
+
+
+        <p>Suppose the lake he is fishing from is populated by three different coloured fish: red fish, blue fish, and green fish, that he can catch with probability $1/2$, $2/5$, and $1/10$ respectively. </p>
+
+        <li>Given that he caught exactly two fish in the first two hours, what is the probability that both are red?</li>
+        <li>Suppose he decides to stop fishing only if he catches a green fish, and gives up after two hours if not. What is the probability that he fishes for the full two hours?</li>
+        <li>What is the expected time to catch both a red fish and a green fish, assuming that he fishes indefinitely until he catches both colors? </li>
+    </ol>
+
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-3">
+      Show Solution
+    </button>
+
+    <div id="solution-3" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>Let $N_t$ be the number of fish caught after $t$ hours. Then, $N_t$ is a Poisson random variable. The probability that there are no arrivals in two hours is given as:</li>
+        \begin{align*}
+        \mathbb{P}(N_2=0)=\frac{e^{-0.6(2)}(0.6(2))^0}{0!}=\boxed{e^{-1.2}}
+    \end{align*}
+    
+        <li>This is the probability of zero arrivals between time $0$ and $2$, and of at least
+one arrival between time $2$ and $5$. Since these two intervals are disjoint, the desired
+probability is the product of the probabilities of these two events, by independence, and so we have:</li>
+
+\begin{align*}
+    \mathbb{P}(N_2=0\cap N_5-N_2\geq 1) & = \mathbb{P}(N_2=0)\mathbb{P}(N_5-N_2\geq 1)
+    \\ & = \mathbb{P}(N_2=0)\mathbb{P}(N_3\geq 1)
+    \\ & = \mathbb{P}(N_2=0)\left[1-\mathbb{P}(N_3=0)\right]
+    \\ & = e^{-0.6(2)}\left[1-e^{-0.6(3)}\right]
+    \\ & =\boxed{e^{-1.2}-e^{-3}}
+\end{align*}
+
+            <li>If he catches at least two fish, he must have fished for exactly two hours. Hence,
+the desired probability is equal to the probability that the number of fish caught in the
+first two hours is at least two:</li>
+
+\begin{align*}
+    \mathbb{P}(N_2\geq 2) & = 1-\mathbb{P}(N_2< 2)
+    \\ & = 1-\mathbb{P}(N_2=0)-\mathbb{P}(N_2=1)
+    \\ & = 1-e^{-0.6(2)}-\frac{e^{-0.6(2)}(0.6(2))^1}{1!}
+    \\ & = \boxed{1-2.2e^{-1.2}}
+\end{align*}
+
+        <li>The expected number of fish caught is equal to the expected number of fish caught during the first two hours, which is $2\lambda=2\cdot0.6=1.2$, plus the expectation of the number $\mathcal{N}$ of fish caught after the first two hours. $\mathcal{N}=0$ if he stops fishing at two hours, whereas $\mathcal{N}=1$ if he continues fishing beyond the two hours. The event $\mathcal{N}=1$ occurs if any only if no fish are caught in the first two hours, so we have:
+
+        $$\mathbb{E}[\mathcal{N}]=1\times\mathbb{P}(\mathcal{N}=1)=\mathbb{P}(N_2=0)=e^{-0.6(2)}=e^{-1.2}$$
+
+        <p>Thus, the expected number of fish caught is:</p>
+
+        </li>
+
+        $$\boxed{1.2+e^{-1.2}\;\text{fish}}$$
+
+        <li>Given that he has been fishing for $4$ hours, the future fishing time is the time until the first fish is caught. By the memoryless property of the Poisson process, the future time is exponential, with mean $\frac{1}{\lambda}$. Hence, the expected total fishing time is:</li>
+
+        $$4+\frac{1}{0.6}=\boxed{\frac{17}{3}\;\text{hours}}$$
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+<p>$\color{white}.\color{black}$</p>
+
+
+                   <!-- Problem + Solution block -->
+            <section class="section" id="problem-4">
+  <div class="card problem-card">
+    <div class="kicker" style="margin-bottom:6px;"></div>
+    <h2 class="problem-title">Problem 4: What to Watch</h2>
+
+    <p>Bob and Joe are two friends hanging out and want to decide on a movie to watch together. Bob will look through Netflix for a movie, and Joe will look through Amazon Prime Video. They find potential movie candidates following a Poisson process.</p>
+
+    <p>Suppose Bob finds potential movies on Netflix at an average rate of $2$ movies per minute, while Joe finds potential movies on Amazon Prime video with an average rate of $4$ movies per minute. Bob is ready to watch a movie when he encounters the third potential movie on Netflix, while Joe is ready to watch a movie when he encounters the second potential movie on Amazon Prime Video. The two friends watch a movie when either of them is ready. Assume that process of finding potential movies on Netflix and Amazon Prime Video are independent of each other. </p>
+
+    <ol class="parts">
+        <li>Find the probability that Joe finds exactly one movie on Amazon Prime Video before Bob finds any movie on Netflix. </li>
+        <li>Find the expected number of potential movies Joe finds on Amazon Prime Video before Bob finds any movie on Netflix.  </li>
+        <li>What is the probability that the friends watch a movie on Netflix?</li>
+        <li>What is the expected time needed to find a movie they'll both watch?</li>
+    </ol>
+
+
+    <!-- divider between question and button -->
+    <hr class="divider">
+
+    <button class="toggle-solution" aria-expanded="false" aria-controls="solution-4">
+      Show Solution
+    </button>
+
+    <div id="solution-4" class="solution" hidden>
+      <div class="spacer"></div>
+      <h3 style="margin-top:0;">Solution</h3>
+
+      
+    <ol class="parts" type="a">
+        <li>Let $\lambda=2$ be the Poisson rate parameter of Bob finding Netflix movies, and $\mu=4$ be the Poisson rate parameter of Joe finding Amazon Prime Video movies. The event that exactly one Amazon Prime Video movie arrival occurs before the first Netflix movie arrival is equivalent to the event that among all movie arrivals, the first movie is an Amazon Prime Video movie, and the second movie is a Netflix movie. The probability of this event equals:</li>
+
+        $$\frac{\lambda\mu}{(\lambda+\mu)^2}=\frac{(2)(4)}{(2+4)^2}=\boxed{\frac{2}{9}}$$
+
+        <li><strong><em>Method 1:</em></strong> Denote $T$ as the first Netflix movie arrival time. The conditional distribution of $X$ given $T$ is Poisson distributed with parameter $\mu T$, where $\mu=4$. So we have:
+
+            $$\mathbb{P}(X=1|T)=\mu T e^{-\mu T}\;\;\;\;\;\text{and}\;\;\;\;\;\mathbb{E}(X|T)=\mu T$$
+
+            Combining this with the fact that as the inter-arrival times are exponential distributed with parameter $\mu$, i.e $T\sim \text{Exp}(\mu)$, we obtain:
+
+            $$\mathbb{P}(X=1)=\mathbb{E}\left[\mu T e^{-\mu T}\right]=\mu \int_0^{\infty} te^{-\mu t}\lambda e^{-\lambda t}dt=\frac{\lambda\mu}{(\lambda+\mu)^2}$$
+
+            <p>And so:</p>
+
+            $$\mathbb{E}[X]=\mu \mathbb{E}[T]=\frac{\mu}{\lambda}=\frac{4}{2}=\boxed{2\;\text{Amazon Prime Video Movies}}$$
+
+            <strong><em>Method 2:</em></strong> We can imagine that all arrivals of movies forms a Bernoulli sequence of trials, where a success is when Bob finds a Netflix movie. Denoting $X$ as the number of movies Joe finds on Amazon Prime Video before the first Netflix movie found by Bob, we can say that $X+1$ denotes the number of all trials up to and including the first successful one. Therefore:
+
+                $$X+1\sim \text{Geom}\left(\frac{\lambda}{\lambda+\mu}\right)$$
+
+    And thus yields:
+
+    $$\mathbb{E}[X]=\frac{\mu}{\lambda}=\frac{4}{2}=\boxed{2\;\text{Amazon Prime Video Movies}}$$
+        </li>
+
+        <li>
+            <strong><em>Method 1:</em></strong> Denote the event $N_3$ at the time when Bob is ready to watch a movie on Netflix and $A_2$ as the time when Joe is ready to watch a movie on Amazon Prime Video. These two random variables with $N_3\sim \text{Gamma}(3,\lambda)$ and $P_2\sim \text{Gamma}(2,\mu)$, where $\lambda=2$ for Bob, and $\mu=4$ for Joe, as the parameters for each of their movie-searching Poisson process. The desired probability equals:
+
+                \begin{align*}
+        \mathbb{P}(N_3< A_2) & =\int_0^{\infty}\int_x^{\infty} f_{N_3}(x)f_{A_2}(y)dydx
+        \\ & = \frac{\lambda^3\mu^2}{2}\int_0^{\infty}x^2e^{-\lambda x}dx\int_x^{\infty} ye^{-\mu y}dy
+        \\ & = \frac{\lambda^3}{2}\int_0^{\infty}x^2(\mu x+1)e^{-(\lambda+\mu)x}dx
+        \\ & = \frac{\lambda^3(\lambda+4\mu)}{(\lambda+\mu)^4}
+        \\ & = \frac{(2)^3(2+4\cdot4)}{(2+4)^4}
+        \\ & =\boxed{\frac 19}  
+    \end{align*}
+
+    <strong><em>Method 2:</em></strong> We can apply the fact that the streaming services (Netflix and Amazon Prime Video) corresponding to the particular arrivals of movies are independent and identically distributed: each potential movie corresponds to Netflix with probability $\lambda/(\lambda+\mu)$ and Amazon Prime Video with probability $\mu/(\lambda+\mu)$, where $\lambda$ and $\mu$ are the Poisson parameters for Netflix and Amazon Prime Video respectively. 
+
+    <p>The event that they watch a movie on Netflix corresponds to the each of the possible sequences of movie arrivals:</p>
+
+    $$\text{NNN},\;\;\text{ANNN},\;\;\text{NANN},\;\;\text{NNAN}$$
+
+    Where N is a Netflix movie arrival, and A is a Amazon Prime Video arrival. So the desired probabiliy equals:
+
+    $$\left(\frac{\lambda}{\lambda+\mu}\right)^3+3\left(\frac{\lambda}{\lambda+\mu}\right)^3\left(\frac{\mu}{\lambda+\mu}\right)=\frac{\lambda^3(\lambda+4\mu)}{(\lambda+\mu)^4}=\frac{(2)^3(2+4\cdot4)}{(2+4)^4}=\boxed{\frac 19}$$
+        </li>
+
+        <li>Denote the event $N_3$ at the time when Bob is ready to watch a movie on Netflix and $A_2$ as the time when Joe is ready to watch a movie on Amazon Prime Video. The time needed to find a movie is the minimum of the random variables $N_3$ and $A_2$. </li>
+    </ol>
+
+
+    </div>
+  </div>
+</section>
+
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Active link handling:
+    // 1) Highlight the link that points to the current page (by pathname)
+    // 2) When scrolling within this page, update the active link to the visible section
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+
+    // Highlight by current page
+    links.forEach(a => {
+      const url = new URL(a.getAttribute('href'), location.href);
+      if (url.pathname === location.pathname) a.classList.add('active');
+    });
+
+    // If there are in-page sections, also track by intersection
+    const sectionAnchors = links
+      .map(a => {
+        const url = new URL(a.getAttribute('href'), location.href);
+        return url.pathname === location.pathname && url.hash
+          ? document.querySelector(url.hash)
+          : null;
+      })
+      .filter(Boolean);
+
+    if (sectionAnchors.length) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          const id = '#' + entry.target.id;
+          links.forEach(l => {
+            const url = new URL(l.getAttribute('href'), location.href);
+            if (url.pathname === location.pathname && url.hash === id) {
+              l.classList.toggle('active', entry.isIntersecting);
+            }
+          });
+        });
+      }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+      sectionAnchors.forEach(sec => observer.observe(sec));
+    }
+  </script>
+</body>
+</html>
