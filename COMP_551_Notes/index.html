@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COMP 551 — Applied Machine Learning</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a; /* slate-900 */
+      --muted: #475569; /* slate-600 */
+      --border: #e2e8f0; /* slate-200 */
+      --accent: #0ea5e9; /* sky-500 */
+      --accent-weak: #e0f2fe; /* sky-100 */
+      --sidebar-bg: #f8fafc; /* slate-50 */
+    }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Layout */
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+      grid-template-areas:
+        "header header"
+        "sidebar main";
+    }
+
+    header {
+      grid-area: header;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px; /* left brand / centered title / right spacer */
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .brand a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .course-title {
+      text-align: center;
+      font-weight: 600;
+      font-size: clamp(18px, 2.2vw, 22px);
+    }
+
+    /* Sidebar */
+    nav.sidebar {
+      grid-area: sidebar;
+      border-right: 1px solid var(--border);
+      background: var(--sidebar-bg);
+      padding: 20px 16px;
+      position: sticky;
+      top: 60px; /* approximate header height */
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin: 8px 10px 12px;
+    }
+
+    .nav-list { list-style: none; margin: 0; padding: 0; }
+
+    .nav-item a {
+      display: block;
+      padding: 10px 12px;
+      margin: 6px 4px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid transparent;
+      transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+      font-weight: 500;
+    }
+
+    .nav-item a:hover {
+      background: var(--accent-weak);
+      border-color: var(--accent);
+    }
+
+    .nav-item a.active {
+      background: var(--accent-weak);
+      border-color: var(--accent);
+    }
+
+    /* Main */
+    main {
+      grid-area: main;
+      padding: 28px clamp(16px, 4vw, 48px) 64px;
+      max-width: 1000px;
+    }
+
+    main h1, main h2, main h3 {
+      line-height: 1.25;
+    }
+
+    .section {
+      scroll-margin-top: 90px; /* prevents content being hidden behind sticky header */
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    pre { background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 12px; overflow: auto; }
+
+    /* Mobile adjustments */
+    .sidebar-toggle {
+      display: none;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 960px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "main";
+      }
+      .header-inner { grid-template-columns: 1fr auto 1fr; }
+      nav.sidebar {
+        position: fixed;
+        inset: 64px 0 auto 0; /* below header */
+        height: auto;
+        max-height: 60vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        display: none; /* toggled by JS */
+        z-index: 30;
+      }
+      .sidebar-toggle { display: inline-block; }
+    }
+
+    /* Utility */
+    .muted { color: var(--muted); }
+    .kicker {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .spacer { height: 12px; }
+  </style>
+  <!-- MathJax for LaTeX equation rendering -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        tags: 'ams'
+      },
+      options: { renderActions: { addMenu: [] } }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <!-- Changed: brand now shows your name and links back to homepage -->
+        <div class="brand"><a href="../notes/index.html"><strong>Notes</strong></a></div>
+        <div class="course-title">Applied Machine Learning</div>
+        <div style="text-align:right">
+          <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar">Lectures</button>
+        </div>
+      </div>
+    </header>
+
+    <nav id="sidebar" class="sidebar" aria-label="Course navigation">
+      <h2>Lectures</h2>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="index.html#lecture-1">Lecture 1: Intro to ML</a></li>
+        <li class="nav-item"><a href="lecture2.html">Lecture 2: Parameter Estimation</a></li>
+        <li class="nav-item"><a href="lecture3.html">Lecture 3: Linear Regression</a></li>
+        <li class="nav-item"><a href="lecture4.html">Lecture 4: Logistic and Softmax Regression</a></li>
+        <li class="nav-item"><a href="lecture5.html">Lecture 5: Gradient Descent</a></li>
+        <li class="nav-item"><a href="lecture6.html">Lecture 6: Regularization</a></li>
+        <li class="nav-item"><a href="lecture7.html">Lecture 7: Generalization</a></li>
+        <li class="nav-item"><a href="lecture8.html">Lecture 8: Multilayer Perceptron</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <section id="lecture-1" class="section">
+        <div class="kicker">Lecture 1</div>
+        <h1>Introduction to Machine Learning</h1>
+        <div class="spacer"></div>
+        <div class="card">
+          <p>
+            What is machine learning? Well, as Shakir Mohamed, a researcher at DeepMind, put it:
+            "Almost all of machine learning can be viewed in probabilistic terms, making probabilistic
+            thinking fundamental. It is, of course, not the only view. But it is through this view that we
+            can connect what we do in machine learning to every other computational science, whether that
+            be in stochastic optimisation, control theory, operations research, econometrics, information
+            theory, statistical physics or bio-statistics. For this reason alone, mastery of probabilistic
+            thinking is essential."
+          </p>
+          <p>
+            We can broadly classify machine learning methods into four families:
+            <h2>1. Supervised Learning</h2>
+            <p>Here, the task $T$ is to learn a mapping $f$ from inputs $x\in \mathcal{X}$ to outputs $y\in \mathcal{Y}$.
+           The inputs $x$ are called the <b>features</b>, <b>covariates</b>, or <b>predictors</b>; this is often
+           a fixed-dimensional vector of numbers, such as the height and weight of a person, or the pixels in an image.
+           In this case, $\mathcal{X}=\mathbb{R}^D$, where $D$ is the dimensionality of the vector (i.e the 
+           number of input features). The output $y$ is also known as the <b>categorical</b>, or <b>nominal</b>
+           variable. The experience $E$ is given in the form of a set of $N$ input-ouput pairs, known as the 
+           <b>training set</b>:
+            </p>
+          </p>
+          $$
+            \mathcal{D}=\left\{\left(x_n,y_n\right)\right\}_{n=1}^N
+          $$
+          <p class="muted">(Training Set Variables)</p>
+
+          <ul>
+            <li>$\mathcal{D}$ : Training set</li>
+            <li>$x$ : $D-$dimensional vector</li>
+            <li>$y$ : A categorical or nominal variable</li>
+            <li>$N$ : Number of training instances</li>
+            <li>$n$ : Index of training instance $(n\in \{1,\dots,N\})$</li>
+          </ul>
+
+          <p>
+            One common method is <b>classification</b>, where the output space is a set of $C$ unordered and 
+            mutually exclusive labels known as classes. The idea is to attempt to predict a class label
+            given an input. More supervised learning methods include image classification, machine translation,
+            object recognition, image captioning, etc.
+          </p>
+
+          <h2>2. Unsupervised Learning</h2>
+
+          <p>Here, we assume that each input $x$ in the training set has an associated set of output targets
+            $y$, and our goal is to learn the input-output mapping. A common goal is to try to "make sense of" the 
+            data, that is, we get observed "inputs" $\mathcal{D}=\left\{x_n:n=1:n\right\}$ without any corresponding
+            "outputs" $y_n$. 
+          </p>
+
+          <p>From a probabilistic perspective, we can view the task of unsupervised learning as fitting
+            an uncodnitional model of the form $p(x)$, which can generate new data $x$, whereas supervised 
+            learning involves fitting a conditional model, $p(y|x)$, which specifies (a distribution over)
+            outputs given inputs. 
+          </p>
+
+          <p>A simple example of unsupervised learning is the problem of finding <b>clusters</b> in data. The goal is to
+            partition the input into regions that contain “similar” points.</p>
+
+          <p>Another popular example is called <b>self-supervised learning</b>, where we create proxy supervised
+          tasks from unlabeled data, and expecting the model to "fill-in" the gaps and to perform downstream tasks.
+          This could involve reconstructing a partial image, or filling in missing words from a sentence, for instance.
+        </p>
+
+        <h2>3. Semisupervised Learning</h2>
+
+        <p>As described in its title, this is a mix between supervised and unsupervised learning where we 
+          we have a small subset of labelled data, with most of it being unlabeled. A very common example of 
+          semisupervised learning is with recommendation systems. For example, with Netflix, their model has
+          only seen a small number of interactions with the users (in this case the labeled data), and Netflix
+          would like to predict and subsequently recommend the type of content you would enjoy. 
+        </p>
+
+        <h2>4. Reinforcement Learning</h2>
+
+        <p>In this case, there is very weak supervision, and the system or agent has to learn via a reward system.
+          In essence, the system is not told which action is the best one to take (i.e which output to produce
+          for a given input). Instead, the system just received an occasional reward (or punishment) signal in 
+          response to the actions that it takes. This is like learning with a critic,  who gives an occasional thumbs up or thumbs down, as opposed to learning
+          with a teacher, who tells you what to do at each step.
+        </p>
+
+</code></pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar active link handling + mobile toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.querySelector('.sidebar-toggle');
+
+    function toggleSidebar() {
+      const isOpen = sidebar.style.display === 'block';
+      sidebar.style.display = isOpen ? 'none' : 'block';
+      toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', toggleSidebar);
+    }
+
+    // Highlight active nav item on scroll
+    const links = Array.from(document.querySelectorAll('.nav-item a'));
+    const sections = links
+      .map(a => document.querySelector(a.getAttribute('href')))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const id = '#' + entry.target.id;
+        const link = links.find(a => a.getAttribute('href') === id);
+        if (link) {
+          if (entry.isIntersecting) {
+            links.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+          }
+        }
+      });
+    }, { rootMargin: '-40% 0px -45% 0px', threshold: [0, 1] });
+
+    sections.forEach(sec => observer.observe(sec));
+  </script>
+</body>
+</html>
