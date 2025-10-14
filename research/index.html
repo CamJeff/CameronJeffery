@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Research — John Doe</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="../assets/icon.png">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand"><a href="../index.html"><strong>Cameron Jeffery</strong></a></div>
+        <nav class="navbar" aria-label="Primary">
+          <a href="../research/index.html">Research</a>
+          <a href="../notes/">Notes</a>
+          <a href="../puzzles/">Puzzles</a>
+          <a href="../cv/index.html">CV</a>
+        </nav>
+        <div></div>
+      </div>
+    </header>
+
+    <!-- Sidebar with profile -->
+    <nav class="sidebar" aria-label="Profile sidebar">
+      <aside class="profile">
+        <div class="photo">
+          <img src="../assets/profile.png" alt="headshot">
+        </div>
+        <h1>Cameron Jeffery</h1>
+        <div class="title">Physics Student @ McGill</div>
+        <ul class="profile-links">
+          <li><i class="fa-solid fa-location-dot"></i> Montréal, Canada</li>
+          <li>
+            <i class="fa-brands fa-github"></i>
+            <a href="https://github.com/CamJeff" target="_blank" rel="noopener">CamJeff</a>
+          </li>
+        </ul>
+      </aside>
+    </nav>
+
+    <main>
+      <section>
+        <div class="kicker">Research</div>
+        <h2>My Research Interests</h2>
+        <div class="card" style="margin-bottom: 20px;">
+          <p>
+            Below are some projects I have worked on throughout my undergraduate degree, both of which are projects in medical physics.
+          </p>
+        </div>
+
+        <div class="kicker">Projects</div>
+
+        <!-- Project 1: Microwave-based imaging -->
+        <article class="card" style="margin-bottom: 20px;">
+          <h3>Microwave-Based Imaging for Bladder State Detection (March 2024-Present)</h3>
+          <p class="muted" style="margin-top: 6px;">
+            Supervised by <a href="https://www.emtlab.ca/" target="_blank" rel="noopener">Prof. Emily Porter</a>.
+          </p>
+          <ul>
+            <li>The entire lab is centered around developing microwave-based medical technologies (both for imaging, and for treatment 
+              techniques such as ablation). We like microwave radiation for imaging since it's non-ionizing, very inexpensive, 
+              easy to use, and comfortable for the patient.
+            </li>
+            <li>The project I worked on involved developing a wearable path antenna array that is able to detect 
+              the state of the bladder (is it full or empty). The idea for this was spurred from a charity approaching our 
+              lab that deals with children with ASD/IDD that may experience urinary incontinence. The aim of the antenna device 
+              is to let users know when their bladder is full and they have to use the bathroom (or 'void').
+            </li>
+            <li>Started with one wearable antenna and optimized the dimensions and geometry by assessing the S11 parameter loss.</li>
+            <li>This then slowly build to an antenna array with more complex and realistic computational 3D phantoms of the pelvis, 
+              derived from CT scans of real patients.
+            </li>
+            <li>Also investigated other non-wearable antennas such as a Vivaldi design, which is said to be more directive, 
+              and thus can resolve the signal difference more clearly between full and empty bladders.
+            </li>
+            <li>Read out most recent paper submission to learn more <a href="../cv/Docs/Paper1.pdf" target="_blank" rel="noopener">
+                  here.
+                </a></li>
+          </ul>
+          <!-- Optional placeholder for future links -->
+          <!-- <p><a href="#" aria-disabled="true">Preprint (coming soon)</a></p> -->
+        </article>
+
+        <!-- Project 2: Dose surface mapping -->
+        <article class="card" style="margin-bottom: 20px;">
+          <h3>Dose Surface Mapping of the Parotid Glands (Sept. 2025-Present)</h3>
+          <p class="muted" style="margin-top: 6px;">
+            Supervised by <a href="https://kildealab.com/author/john-kildea/" target="_blank" rel="noopener">Prof. John Kildea</a>.
+          </p>
+          <ul>
+            <li>This a project I recently started for my undergraduate thesis. The motivation comes from the fact 
+              that patients who undergo offline adaptive radiation therapy to treat cancer of the head and neck 
+              can often experience side effects. One of which is a loss of function of parotid glands, the structure 
+              responsible for producing saliva, in a condition known as xerostomia or dry mouth.
+            </li>
+            <li>We want to develop a predictive dose surface mapping software, in that we can visualize exactly where the radiation 
+              does goes in the parotid gland during treatment. The dose surface maps is meant to produce a 2D image over the 
+              structure of interest after it has been "flattened out". 
+            </li>
+            <li>For the parotid glands, we aim to look at dose surface maps for concentric spherical shells (like an onion) 
+              after they have flattened (distortion is inevitable, but we can also quarter the parotids as well).
+            </li>
+            <li>Work on this project is still in early stages, but now I am testing on very simple spherical computational 
+              phantoms that I made myself (with fake dose information also given by me). We will soon move to more 
+              anatomically accurate models.
+            </li>
+          </ul>
+        </article>
+
+      </section>
+    </main>
+  </div>
+</body>
+</html>
+
